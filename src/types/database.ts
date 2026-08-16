@@ -54,13 +54,13 @@ export type TicketStatus = 'NEW' | 'IN_PROGRESS' | 'RESOLVED';
 
 export type ReactivationStage = 'DATABASE' | 'CONTACTED' | 'RESPONDED' | 'DEMO' | 'NEGOTIATION' | 'CLOSED';
 
-// Mandatory Traceable Field Visit Proof (Applies to all 3 products: Pilin, CeritaAnanda, Kabarsantri)
+// Mandatory Traceable Field Visit Proof
 export interface VisitProof {
   photo_url: string;
   gps_lat: number;
   gps_lng: number;
   geo_address: string;
-  visit_timestamp: string; // ISO Timestamp (bisa ditrace)
+  visit_timestamp: string;
   is_verified: boolean;
 }
 
@@ -70,6 +70,7 @@ export interface PilinDetails {
   alamat: string;
   owner: string;
   no_admin: string;
+  email?: string;
   website?: string;
   media_sosial?: string;
   jenis_usaha: 'Retail' | 'Jasa';
@@ -84,6 +85,7 @@ export interface CeritaAnandaDetails {
   pic: string;
   alamat: string;
   no_kontak: string;
+  email?: string;
   jumlah_guru: number;
   jumlah_murid: number;
 }
@@ -93,6 +95,7 @@ export interface KabarsantriDetails {
   nama_lembaga: string;
   pic: string;
   no_hp: string;
+  email?: string;
   wilayah: string;
   jumlah_santri?: number;
 }
@@ -140,19 +143,17 @@ export interface PointRulesConfig {
 export interface Prospect {
   id: string;
   tenant_id: string;
-  nama_lembaga: string; // Used as main display name (Nama Toko / Nama TK / Nama Pesantren)
+  nama_lembaga: string;
   pic: string;
   no_hp: string;
+  email?: string; // Alamat Email General
   wilayah: string;
   sales_owner_id: string;
   sales_owner_name?: string;
   source: string;
   produk_minat: MinaraProduct[];
   
-  // Mandatory Traceability Visit Proof (Foto, GPS Tempat, & Waktu)
   visit_proof?: VisitProof;
-
-  // Dynamic Product-Specific Details
   pilin_details?: PilinDetails;
   ceritaananda_details?: CeritaAnandaDetails;
   kabarsantri_details?: KabarsantriDetails;
@@ -241,6 +242,7 @@ export interface DealRecord {
   cs_verifier_id?: string;
   finance_verifier_id?: string;
   amount: number;
+  email?: string;
   produk_minat?: MinaraProduct[];
   pilin_details?: PilinDetails;
   ceritaananda_details?: CeritaAnandaDetails;
@@ -264,6 +266,7 @@ export interface CSTenantRecord {
   nama_lembaga: string;
   pic: string;
   no_hp: string;
+  email?: string;
   sales_owner_name: string;
   amount: number;
   produk_minat?: MinaraProduct[];
@@ -312,6 +315,7 @@ export interface ReactivationLead {
   nama_lembaga: string;
   pic: string;
   no_hp: string;
+  email?: string;
   source_type: 'trial_user' | 'demo_lama' | 'proposal_lama' | 'pelanggan_berhenti' | 'pelanggan_tidak_aktif';
   stage: ReactivationStage;
   cs_owner_id: string;

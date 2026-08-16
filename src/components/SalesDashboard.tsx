@@ -6,7 +6,7 @@ import { systemStore } from '../lib/supabase';
 import { 
   Users, CheckCircle2, TrendingUp, Clock, 
   Award, ChevronRight, Plus, MapPin, Building, 
-  FileCheck, Filter, Calendar, RefreshCw, Layers, ShieldCheck
+  FileCheck, Filter, Calendar, RefreshCw, Layers, ShieldCheck, Mail
 } from 'lucide-react';
 
 interface SalesDashboardProps {
@@ -45,7 +45,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
     points: prospekCount * 10 + followupCount * 5 + discoveryCount * 25 + demoCount * 50 + proposalCount * 75 + closingCount * 200
   });
 
-  // Filter today's actions (Active follow-ups)
+  // Filter today's actions
   const todaysActions = prospects.filter(p => {
     return p.status === 'ACTIVE' || p.status.startsWith('FOLLOWUP') || p.aging_days > 7;
   });
@@ -65,7 +65,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-white">{currentSales.name}</h2>
               <span className="badge-emerald text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> Verifikasi GPS & Foto
+                <ShieldCheck className="w-3 h-3" /> Verifikasi GPS, Foto, & Email
               </span>
             </div>
             <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-2 font-medium">
@@ -268,7 +268,6 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
                 className="bg-gray-900/80 hover:bg-gray-800 p-3 rounded-xl border border-white/10 flex items-center justify-between cursor-pointer transition-all text-xs"
               >
                 <div className="flex items-center gap-3">
-                  {/* Photo Thumbnail if available */}
                   {prospect.visit_proof?.photo_url ? (
                     <img src={prospect.visit_proof.photo_url} alt="Foto Kunjungan" className="w-9 h-9 rounded-lg object-cover border border-emerald-500/40" />
                   ) : (
@@ -279,16 +278,9 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
 
                   <div>
                     <h4 className="font-bold text-white">{prospect.nama_lembaga}</h4>
-                    <p className="text-gray-400 text-[11px]">PIC: {prospect.pic} • {prospect.wilayah}</p>
-                    
-                    {/* Traceability Badge (GPS & Waktu) */}
-                    {prospect.visit_proof && (
-                      <div className="text-[10px] text-emerald-400 flex items-center gap-2 mt-0.5 font-mono">
-                        <span>📍 GPS: {prospect.visit_proof.gps_lat.toFixed(3)}, {prospect.visit_proof.gps_lng.toFixed(3)}</span>
-                        <span>•</span>
-                        <span>⏰ {new Date(prospect.visit_proof.visit_timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
-                      </div>
-                    )}
+                    <p className="text-gray-400 text-[11px]">
+                      PIC: {prospect.pic} • {prospect.no_hp} {prospect.email && `• ${prospect.email}`}
+                    </p>
                   </div>
                 </div>
 
@@ -311,14 +303,14 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             <Filter className="w-4 h-4 text-cyan-400" />
             <span>Sales Pipeline General ({prospects.length} Prospek)</span>
           </h3>
-          <span className="text-xs text-gray-500">Terverifikasi GPS Tempat, Foto, & Waktu</span>
+          <span className="text-xs text-gray-500">Mencakup Email, Foto, GPS Tempat, & Waktu</span>
         </div>
 
         {prospects.length === 0 ? (
           <div className="glass-card p-8 text-center text-gray-400 text-xs space-y-2">
             <Layers className="w-8 h-8 text-indigo-400 mx-auto opacity-50" />
             <p className="font-bold text-white text-sm">Belum Ada Prospek Kanvasing</p>
-            <p>Data sales bersifat general untuk 3 produk Minara (Pilin, CeritaAnanda, & Kabarsantri) dengan verifikasi foto & GPS tempat.</p>
+            <p>Data sales bersifat general untuk 3 produk Minara (Pilin, CeritaAnanda, & Kabarsantri) dengan Email, foto, & GPS tempat.</p>
             <button onClick={() => onOpenProspectModal()} className="btn-primary text-xs mt-2">
               + Input Prospek Pertama
             </button>
@@ -354,6 +346,13 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
                     {prospect.pipeline_stage}
                   </span>
                 </div>
+
+                {/* Email Display */}
+                {prospect.email && (
+                  <div className="text-[11px] text-cyan-300 flex items-center gap-1.5 font-mono">
+                    <Mail className="w-3 h-3 text-cyan-400" /> {prospect.email}
+                  </div>
+                )}
 
                 {/* Product Interest Badges */}
                 <div className="flex flex-wrap gap-1">

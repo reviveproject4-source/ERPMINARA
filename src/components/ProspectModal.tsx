@@ -3,7 +3,7 @@ import type { Prospect, ProspectStatus, MinaraProduct, VisitProof } from '../typ
 import { systemStore } from '../lib/supabase';
 import { 
   X, Save, CheckCircle2, AlertCircle, 
-  Calendar, Send, Layers, ShoppingBag, GraduationCap, Radio, Camera, MapPin, Clock, ShieldCheck
+  Calendar, Send, Layers, ShoppingBag, GraduationCap, Radio, Camera, MapPin, Clock, ShieldCheck, Mail
 } from 'lucide-react';
 
 interface ProspectModalProps {
@@ -28,7 +28,7 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
   // Active Product Form Section Toggle ('Pilin' | 'CeritaAnanda' | 'Kabarsantri')
   const [activeProductForm, setActiveProductForm] = useState<MinaraProduct>('Pilin');
 
-  // TRACEABLE VISIT PROOF (FOTO, TEMPAT GPS, & WAKTU) - Mandatory for all 3 products
+  // TRACEABLE VISIT PROOF
   const [photoUrl, setPhotoUrl] = useState<string>(
     prospect?.visit_proof?.photo_url || 'https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=300'
   );
@@ -41,6 +41,9 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
     prospect?.visit_proof?.visit_timestamp || new Date().toISOString()
   );
   const [isGpsCapturing, setIsGpsCapturing] = useState(false);
+
+  // General Email Field (Applies to all products)
+  const [email, setEmail] = useState<string>(prospect?.email || '');
 
   // PILIN (UMKM Retail & Jasa) Specific Fields
   const [pilinNamaToko, setPilinNamaToko] = useState(prospect?.pilin_details?.nama_toko || prospect?.nama_lembaga || '');
@@ -101,7 +104,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
           alert('📍 Lokasi GPS & Timestamp Terverifikasi!');
         },
         () => {
-          // Fallback realistic location
           setGpsLat(-6.5950 + (Math.random() * 0.01));
           setGpsLng(106.8166 + (Math.random() * 0.01));
           setVisitTimestamp(new Date().toISOString());
@@ -166,6 +168,7 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
       alamat: pilinAlamat,
       owner: pilinOwner,
       no_admin: pilinNoAdmin,
+      email,
       website: pilinWebsite,
       media_sosial: pilinMediaSosial,
       jenis_usaha: pilinJenisUsaha,
@@ -179,6 +182,7 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
       pic: caPic,
       alamat: caAlamat,
       no_kontak: caNoKontak,
+      email,
       jumlah_guru: caJumlahGuru,
       jumlah_murid: caJumlahMurid
     };
@@ -188,6 +192,7 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
         nama_lembaga: mainDisplayName,
         pic: mainPic,
         no_hp: mainPhone,
+        email,
         wilayah: mainWilayah,
         source,
         produk_minat: produkMinat,
@@ -206,6 +211,7 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
         nama_lembaga: mainDisplayName,
         pic: mainPic,
         no_hp: mainPhone,
+        email,
         wilayah: mainWilayah,
         sales_owner_id: currentSales.id,
         sales_owner_name: currentSales.name,
@@ -313,10 +319,10 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-white/10">
           <div>
             <h3 className="text-base font-bold text-white">
-              {isEditing ? `Kelola Data: ${prospect.nama_lembaga}` : 'Input Prospek Field (3 Produk + Verifikasi GPS & Foto)'}
+              {isEditing ? `Kelola Data: ${prospect.nama_lembaga}` : 'Input Prospek Field (3 Produk + Email & GPS)'}
             </h3>
             <p className="text-xs text-gray-400">
-              Wajib mencakup foto lokasi, koordinat GPS tempat, & timestamp waktu yang bisa ditrace.
+              Menyimpan Alamat Email, foto lokasi, koordinat GPS tempat, & timestamp waktu yang bisa ditrace.
             </p>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white">
@@ -338,7 +344,7 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
         {activeTab === 'info' && (
           <form onSubmit={handleSubmitInfo} className="space-y-4 text-xs">
             
-            {/* MANDATORY TRACEABLE VISIT PROOF SECTION (FOTO, TEMPAT GPS, & WAKTU) */}
+            {/* MANDATORY TRACEABLE VISIT PROOF SECTION */}
             <div className="glass-card p-3.5 border-2 border-emerald-500/40 bg-emerald-500/10 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-emerald-300 font-bold text-xs flex items-center gap-1.5">
@@ -402,6 +408,21 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* MANDATORY EMAIL FIELD (APPLIES TO ALL PRODUCTS) */}
+            <div className="bg-gray-900/80 p-3 rounded-xl border border-white/10">
+              <label className="block text-gray-300 font-bold mb-1 flex items-center gap-1.5 text-xs">
+                <Mail className="w-4 h-4 text-cyan-400" /> Alamat Email Lembaga / Usaha (Berlaku Semua Produk) *
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Contoh: admin@lembaga.com / owner@tokoberkah.com"
+                className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono"
+              />
             </div>
 
             {/* GENERAL CANVASSING PRODUCTS TOGGLE */}
