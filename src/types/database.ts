@@ -54,6 +54,8 @@ export type TicketStatus = 'NEW' | 'IN_PROGRESS' | 'RESOLVED';
 
 export type ReactivationStage = 'DATABASE' | 'CONTACTED' | 'RESPONDED' | 'DEMO' | 'NEGOTIATION' | 'CLOSED';
 
+export type AttendanceType = 'MASUK' | 'KELUAR' | 'CHECKIN_FIELD';
+
 // Mandatory Traceable Field Visit Proof
 export interface VisitProof {
   photo_url: string;
@@ -62,6 +64,23 @@ export interface VisitProof {
   geo_address: string;
   visit_timestamp: string;
   is_verified: boolean;
+}
+
+// Sales Attendance Record (Berhubungan dengan Data Keuangan & Payroll Gaji/Harian)
+export interface AttendanceRecord {
+  id: string;
+  tenant_id: string;
+  sales_id: string;
+  sales_name: string;
+  type: AttendanceType;
+  timestamp: string; // Waktu Presensi Traceable
+  gps_lat: number;   // Lokasi GPS Latitude
+  gps_lng: number;   // Lokasi GPS Longitude
+  geo_address: string; // Tempat Alamat Lengkap
+  photo_url: string; // Foto Selfie Presensi Field
+  notes?: string;
+  is_verified_finance: boolean; // Verifikasi Keuangan untuk Pencairan Gaji / Uang Harian
+  created_at: string;
 }
 
 // Specific Details for PILIN (BOS UMKM Retail & Jasa)
@@ -146,7 +165,7 @@ export interface Prospect {
   nama_lembaga: string;
   pic: string;
   no_hp: string;
-  email?: string; // Alamat Email General
+  email?: string;
   wilayah: string;
   sales_owner_id: string;
   sales_owner_name?: string;

@@ -86,9 +86,9 @@ export function App() {
 
         {activeTab === 'owner' && (
           <OwnerDashboard
-            prospects={prospects}
-            proposals={proposals}
             deals={deals}
+            csTenants={csTenants}
+            tickets={supportTickets}
             onRefresh={refreshData}
           />
         )}

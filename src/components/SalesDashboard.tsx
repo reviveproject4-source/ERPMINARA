@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Prospect, ProposalRecord, DealRecord } from '../types/database';
 import { KPIEngine } from '../engine/kpiEngine';
 import type { KPIOverallScorecard } from '../engine/kpiEngine';
 import { systemStore } from '../lib/supabase';
+import { SalesAttendanceModal } from './SalesAttendanceModal';
 import { 
   Users, CheckCircle2, TrendingUp, Clock, 
   Award, ChevronRight, Plus, MapPin, Building, 
-  FileCheck, Filter, Calendar, RefreshCw, Layers, ShieldCheck, Mail
+  FileCheck, Filter, Calendar, RefreshCw, Layers, ShieldCheck, Mail, UserCheck
 } from 'lucide-react';
 
 interface SalesDashboardProps {
@@ -25,6 +26,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
   onRefresh
 }) => {
   const currentSales = systemStore.getCurrentEmployee();
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
 
   // Calculate actuals
   const prospekCount = prospects.length;
@@ -53,7 +55,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
   return (
     <div className="text-white p-4 md:p-6 max-w-7xl mx-auto space-y-5">
       
-      {/* Sales Profile Header */}
+      {/* Sales Profile Header & Presensi Button */}
       <div className="glass-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-l-4 border-emerald-500">
         <div className="flex items-center gap-4">
           <img 
@@ -65,7 +67,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-white">{currentSales.name}</h2>
               <span className="badge-emerald text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> Verifikasi GPS, Foto, & Email
+                <ShieldCheck className="w-3 h-3" /> Verifikasi GPS, Foto, & Presensi
               </span>
             </div>
             <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-2 font-medium">
@@ -77,6 +79,15 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
+          {/* PRESENSI SALES FIELD BUTTON */}
+          <button 
+            onClick={() => setIsAttendanceModalOpen(true)}
+            className="btn-secondary text-xs py-2 px-3 bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
+          >
+            <UserCheck className="w-4 h-4 text-emerald-400" />
+            <span>📍 Presensi Sales (GPS & Waktu)</span>
+          </button>
+
           <button 
             onClick={onRefresh}
             title="Refresh Data"
@@ -84,6 +95,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
           >
             <RefreshCw className="w-4 h-4" />
           </button>
+          
           <button 
             onClick={() => onOpenProspectModal()}
             className="btn-primary w-full md:w-auto justify-center text-xs py-2 px-4"
@@ -391,6 +403,14 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
           </div>
         )}
       </div>
+
+      {/* SALES ATTENDANCE MODAL */}
+      {isAttendanceModalOpen && (
+        <SalesAttendanceModal
+          onClose={() => setIsAttendanceModalOpen(false)}
+          onSaved={() => onRefresh()}
+        />
+      )}
 
     </div>
   );

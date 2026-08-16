@@ -2,7 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { 
   Employee, Prospect, ProspectActivity, DiscoveryRecord, DemoRecord, 
   ProposalRecord, DealRecord, AuditLog, UserRole, DealLifecycleStatus,
-  CSTenantRecord, SupportTicket, ReactivationLead, CSTenantWorkflowStage, TicketStatus, ReactivationStage
+  CSTenantRecord, SupportTicket, ReactivationLead, CSTenantWorkflowStage, TicketStatus, ReactivationStage,
+  AttendanceRecord
 } from '../types/database';
 import { 
   INITIAL_EMPLOYEES, INITIAL_PROSPECTS, INITIAL_DISCOVERY, 
@@ -26,8 +27,9 @@ class SystemStore {
   private csTenants: CSTenantRecord[] = [...INITIAL_CS_TENANTS];
   private supportTickets: SupportTicket[] = [...INITIAL_SUPPORT_TICKETS];
   private reactivationLeads: ReactivationLead[] = [...INITIAL_REACTIVATION_LEADS];
+  private attendanceRecords: AttendanceRecord[] = [];
   private auditLogs: AuditLog[] = [...INITIAL_AUDIT_LOGS];
-  private currentEmployee: Employee = INITIAL_EMPLOYEES[0]; // Default to Sales Rep
+  private currentEmployee: Employee = INITIAL_EMPLOYEES[0];
 
   constructor() {
     this.loadFromStorage();
@@ -47,6 +49,9 @@ class SystemStore {
       const savedTickets = localStorage.getItem('minara_tickets');
       if (savedTickets) this.supportTickets = JSON.parse(savedTickets);
 
+      const savedAttendance = localStorage.getItem('minara_attendance');
+      if (savedAttendance) this.attendanceRecords = JSON.parse(savedAttendance);
+
       const savedAudit = localStorage.getItem('minara_audit');
       if (savedAudit) this.auditLogs = JSON.parse(savedAudit);
     } catch {
@@ -60,6 +65,7 @@ class SystemStore {
       localStorage.setItem('minara_deals', JSON.stringify(this.deals));
       localStorage.setItem('minara_cs_tenants', JSON.stringify(this.csTenants));
       localStorage.setItem('minara_tickets', JSON.stringify(this.supportTickets));
+      localStorage.setItem('minara_attendance', JSON.stringify(this.attendanceRecords));
       localStorage.setItem('minara_audit', JSON.stringify(this.auditLogs));
     } catch {
       // Ignore
@@ -76,6 +82,7 @@ class SystemStore {
     this.csTenants = [];
     this.supportTickets = [];
     this.reactivationLeads = [];
+    this.attendanceRecords = [];
     this.auditLogs = [];
     
     try {
@@ -83,6 +90,7 @@ class SystemStore {
       localStorage.removeItem('minara_deals');
       localStorage.removeItem('minara_cs_tenants');
       localStorage.removeItem('minara_tickets');
+      localStorage.removeItem('minara_attendance');
       localStorage.removeItem('minara_audit');
     } catch {
       // Ignore
@@ -97,6 +105,37 @@ class SystemStore {
     const emp = this.employees.find(e => e.role === role) || this.employees[0];
     this.currentEmployee = emp;
     return emp;
+  }
+
+  // SALES ATTENDANCE / PRESENSI METHODS (DISALURKAN KE KEUKANGAN / PAYROLL GAJI)
+  public getAttendanceRecords(): AttendanceRecord[] {
+    return this.attendanceRecords;
+  }
+
+  public addAttendanceRecord(rec: Omit<AttendanceRecord, 'id' | 'created_at'>): AttendanceRecord {
+    const newRec: AttendanceRecord = {
+      ...rec,
+      id: `att-${Date.now()}`,
+      created_at: new Date().toISOString()
+    };
+    this.attendanceRecords.unshift(newRec);
+    this.saveToStorage();
+
+    this.logAudit(rec.sales_id, `SALES_ATTENDANCE_${rec.type}`, 'attendance', newRec.id, undefined, newRec as unknown as Record<string, unknown>);
+    return newRec;
+  }
+
+  public verifyAttendanceFinance(id: string): AttendanceRecord | null {
+    const idx = this.attendanceRecords.findIndex(a => a.id === id);
+    if (idx === -1) return null;
+
+    const prev = { ...this.attendanceRecords[idx] };
+    const updated = { ...this.attendanceRecords[idx], is_verified_finance: true };
+    this.attendanceRecords[idx] = updated;
+    this.saveToStorage();
+
+    this.logAudit(this.currentEmployee.id, 'FINANCE_ATTENDANCE_VERIFIED', 'attendance', id, prev as unknown as Record<string, unknown>, updated as unknown as Record<string, unknown>);
+    return updated;
   }
 
   public getProspects(salesId?: string, role: UserRole = 'sales'): Prospect[] {
@@ -203,7 +242,6 @@ class SystemStore {
     this.deals.unshift(deal);
     this.updateProspect(prospectId, { pipeline_stage: 'WON', status: 'CLOSING' });
     
-    // Automatically trigger Sales -> CS Handoff without duplicate data entry!
     this.createCSTenantFromDeal(deal, prospect);
 
     this.saveToStorage();
@@ -212,7 +250,6 @@ class SystemStore {
     return deal;
   }
 
-  // Automatic Handoff Data Creation (Anti-Duplicate Input)
   private createCSTenantFromDeal(deal: DealRecord, prospect?: Prospect) {
     const csTenant: CSTenantRecord = {
       id: `cst-${Date.now()}`,
@@ -270,7 +307,6 @@ class SystemStore {
     return updated;
   }
 
-  // CS BOS TENANT WORKFLOW OPERATIONAL METHODS
   public getCSTenants(): CSTenantRecord[] {
     return this.csTenants;
   }
@@ -313,7 +349,6 @@ class SystemStore {
     return updated;
   }
 
-  // SUPPORT TICKET METHODS (SECTION 6)
   public getSupportTickets(): SupportTicket[] {
     return this.supportTickets;
   }
@@ -327,7 +362,6 @@ class SystemStore {
     };
     this.supportTickets.unshift(newTicket);
     
-    // Update complaint count on CSTenant
     const tenantIdx = this.csTenants.findIndex(t => t.id === ticket.cs_tenant_id);
     if (tenantIdx !== -1) {
       this.csTenants[tenantIdx].complaint_count += 1;
@@ -358,7 +392,6 @@ class SystemStore {
     return updated;
   }
 
-  // REACTIVATION METHODS (SECTION 8 - 100 DB TARGET)
   public getReactivationLeads(): ReactivationLead[] {
     return this.reactivationLeads;
   }
