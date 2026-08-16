@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import type { DealRecord, CSTenantRecord, SupportTicket, AttendanceRecord } from '../types/database';
+import type { DealRecord, CSTenantRecord, SupportTicket, AttendanceRecord, Prospect, ProposalRecord } from '../types/database';
 import { systemStore } from '../lib/supabase';
+import { CoachingEngine } from '../engine/coachingEngine';
+import type { SalesCriticalZoneRecord } from '../engine/coachingEngine';
 import { 
   DollarSign, ShieldAlert, CheckCircle2, 
-  Clock, AlertTriangle, Layers, UserCheck, Lock, Award, Heart, HelpCircle, CheckSquare
+  Clock, AlertTriangle, Layers, UserCheck, Lock, Award, Heart, HelpCircle, CheckSquare,
+  MessageSquare, Calendar
 } from 'lucide-react';
 
 interface OwnerDashboardProps {
+  prospects: Prospect[];
+  proposals: ProposalRecord[];
   deals: DealRecord[];
   csTenants: CSTenantRecord[];
   tickets: SupportTicket[];
@@ -14,18 +19,31 @@ interface OwnerDashboardProps {
 }
 
 export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
+  prospects,
+  proposals,
   deals,
   csTenants,
   tickets,
   onRefresh
 }) => {
   const currentEmployee = systemStore.getCurrentEmployee();
+  const allEmployees = systemStore.getEmployees();
   const isSuperAdmin = currentEmployee.role === 'founder' || currentEmployee.role === 'super_admin';
 
   // Attendance Records for Finance Payroll Verification
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(
     systemStore.getAttendanceRecords()
   );
+
+  // Critical Sales Performance Zone Detection (SIAPA & KAPAN Perlu Coaching)
+  const criticalSalesZones: SalesCriticalZoneRecord[] = CoachingEngine.detectCriticalSalesZones(
+    allEmployees,
+    prospects,
+    deals,
+    proposals
+  );
+
+  const [coachingStatusMap, setCoachingStatusMap] = useState<Record<string, 'NEEDS_COACHING' | 'COACHING_IN_PROGRESS' | 'RESOLVED'>>({});
 
   const pendingCSCount = deals.filter(d => d.status === 'CLOSED_PENDING').length;
   const pendingCSAmount = deals.filter(d => d.status === 'CLOSED_PENDING').reduce((acc, d) => acc + d.amount, 0);
@@ -80,6 +98,11 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
     alert('✅ Presensi Sales Terverifikasi Finance! Siap dicairkan untuk Gaji / Uang Harian.');
   };
 
+  const handleUpdateCoachingState = (salesId: string, nextStatus: 'COACHING_IN_PROGRESS' | 'RESOLVED') => {
+    setCoachingStatusMap(prev => ({ ...prev, [salesId]: nextStatus }));
+    alert(`🤝 Status Coaching Sales berhasil diperbarui menjadi: ${nextStatus.replace('_', ' ')}`);
+  };
+
   return (
     <div className="text-white p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       
@@ -93,7 +116,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
             </span>
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            Perspektif Eksekutif: Memastikan Alur Data Operasional $\rightarrow$ Omset Sah $\rightarrow$ Kesehatan Tenant $\rightarrow$ Verifikasi Payroll Gaji.
+            Perspektif Eksekutif: Memastikan Alur Data Operasional $\rightarrow$ Omset Sah $\rightarrow$ Radar Coaching Sales Zona Kritis.
           </p>
         </div>
 
@@ -101,6 +124,129 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
           <span className="text-[10px] text-gray-400 block font-medium">Peran Aktif Pengguna:</span>
           <strong className="text-emerald-400 text-sm">{currentEmployee.name} ({currentEmployee.role.toUpperCase()})</strong>
         </div>
+      </div>
+
+      {/* ⚠️ RADAR SALES ZONA KRITIS KINERJA & INTERAKSI COACHING OWNER (PETA SIAPA & KAPAN) */}
+      <div className="glass-card p-5 border-2 border-rose-500/40 bg-rose-500/10 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-rose-500/20">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-rose-400 animate-pulse" />
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <span>Radar Sales Zona Kritis Kinerja (Deteksi Kapan & Siapa Perlu Coaching)</span>
+                <span className="badge-rose text-[10px] px-2 py-0.5 font-bold">Real-time Radar</span>
+              </h3>
+              <p className="text-xs text-rose-200">
+                Deteksi otomatis sales yang capaian kinerjanya di bawah 70% (Grade D / Zona Kritis) untuk pembinaan langsung oleh Owner/Manager.
+              </p>
+            </div>
+          </div>
+
+          <span className="badge-rose text-xs px-3 py-1 font-mono font-bold">
+            {criticalSalesZones.length} Sales Kritis
+          </span>
+        </div>
+
+        {criticalSalesZones.length === 0 ? (
+          <div className="bg-gray-900/80 p-4 rounded-xl border border-emerald-500/30 text-center text-xs text-emerald-300 space-y-1">
+            <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto" />
+            <p className="font-bold text-white">🎉 Luar Biasa! Semua Sales Berada di Atas Baseline Kinerja (&gt;70%)</p>
+            <p className="text-gray-400">Tidak ada sales yang terdeteksi di Zona Kritis saat ini.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {criticalSalesZones.map((record) => {
+              const currentStatus = coachingStatusMap[record.sales_id] || record.status;
+              return (
+                <div key={record.id} className="bg-gray-900/90 p-4 rounded-xl border border-rose-500/30 space-y-3 text-xs">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    
+                    {/* SIAPA (Nama & Avatar Sales) */}
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={record.sales_avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150"} 
+                        alt={record.sales_name}
+                        className="w-11 h-11 rounded-xl object-cover ring-2 ring-rose-500/50"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <strong className="text-white font-bold text-sm">{record.sales_name}</strong>
+                          <span className="badge-rose text-[10px] px-2 py-0.5 font-bold font-mono">
+                            ZONA KRITIS ({record.achievement_pct}% - Grade {record.grade})
+                          </span>
+                        </div>
+                        
+                        {/* KAPAN (Timestamp Terdeteksi System) */}
+                        <p className="text-gray-400 text-[11px] flex items-center gap-2 mt-0.5 font-mono">
+                          <Clock className="w-3 h-3 text-amber-400" />
+                          <span>Terdeteksi Kritis pada: <strong className="text-amber-300">{new Date(record.detected_at).toLocaleString('id-ID')}</strong></span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Capaian Data Ringkas */}
+                    <div className="flex items-center gap-3 bg-gray-950 p-2.5 rounded-xl border border-white/10 text-center font-mono">
+                      <div>
+                        <span className="text-[10px] text-gray-400 block">Prospek</span>
+                        <strong className="text-white">{record.prospek_count}/250</strong>
+                      </div>
+                      <div className="border-l border-white/10 pl-3">
+                        <span className="text-[10px] text-gray-400 block">Closing</span>
+                        <strong className="text-amber-400">{record.closing_count}/10</strong>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* ALASAN & REKOMENDASI ACTION COACHING */}
+                  <div className="bg-rose-950/40 p-3 rounded-lg border border-rose-500/20 space-y-1.5 text-[11px]">
+                    <div className="text-rose-300 font-medium">
+                      ⚠️ <strong>Alasan Evaluasi:</strong> {record.reason}
+                    </div>
+                    <div className="text-emerald-300 font-bold flex items-center gap-1.5 pt-1 border-t border-rose-500/20">
+                      <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>💡 Rekomendasi Coaching Owner: {record.recommendation}</span>
+                    </div>
+                  </div>
+
+                  {/* AKSI INTERAKSI OWNER/MANAGER */}
+                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                    <span className="text-[10px] text-gray-400 font-mono">
+                      Status Pembinaan: <strong className="text-amber-400">{currentStatus}</strong>
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                      {currentStatus === 'NEEDS_COACHING' && (
+                        <button
+                          onClick={() => handleUpdateCoachingState(record.sales_id, 'COACHING_IN_PROGRESS')}
+                          className="btn-primary text-xs py-1.5 px-3 bg-amber-600 hover:bg-amber-500 flex items-center gap-1.5"
+                        >
+                          <Calendar className="w-3.5 h-3.5" /> 🤝 Ajak & Mulai Sesi Coaching
+                        </button>
+                      )}
+
+                      {currentStatus === 'COACHING_IN_PROGRESS' && (
+                        <button
+                          onClick={() => handleUpdateCoachingState(record.sales_id, 'RESOLVED')}
+                          className="btn-primary text-xs py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 flex items-center gap-1.5"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" /> ✅ Tandai Coaching Selesai
+                        </button>
+                      )}
+
+                      {currentStatus === 'RESOLVED' && (
+                        <span className="badge-emerald text-xs px-3 py-1 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Coaching Selesai & Dalam Pengawasan
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 4 PIPELINE OMSET FINANCIAL CARDS */}
@@ -216,7 +362,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
         </div>
       </div>
 
-      {/* PRESENSI SALES & VERIFIKASI KEUANGAN (DATA GAJI & TRANSPORT HARIAN) */}
+      {/* PRESENSI SALES & VERIFIKASI KEUANGAN */}
       <div className="glass-card p-5 border border-indigo-500/30 bg-indigo-500/5 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-white/10">
           <div className="flex items-center gap-2">
