@@ -39,7 +39,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
   const cancelledCount = deals.filter(d => d.status === 'CANCELLED').length;
   const cancelledAmount = deals.filter(d => d.status === 'CANCELLED').reduce((acc, d) => acc + d.amount, 0);
 
-  const totalOmsetTarget = 500000000;
+  const totalOmsetTarget = 2500000000; // 5x Target Multiplier (Rp 2.5 Miliar)
   const omsetAchievementPct = Math.round((activeAmount / totalOmsetTarget) * 100);
 
   // CS BOS Executive Aggregations

@@ -1,12 +1,13 @@
 import type { KPITargetsConfig, SLAConfig, PerformanceZoneConfig, PointRulesConfig } from '../types/database';
 
+// 5x Target Multiplier Rules (Scaled Up as per User Directive)
 const DEFAULT_KPI_TARGETS: KPITargetsConfig = {
-  daily_prospect_contact: 10,
-  monthly_prospect: 50,
-  monthly_discovery: 20,
-  monthly_demo: 10,
-  monthly_proposal: 5,
-  monthly_closing: 2
+  daily_prospect_contact: 50,  // 10 x 5 = 50 kontak/hari
+  monthly_prospect: 250,       // 50 x 5 = 250 prospek/bulan
+  monthly_discovery: 100,      // 20 x 5 = 100 discovery/bulan
+  monthly_demo: 50,            // 10 x 5 = 50 demo/bulan
+  monthly_proposal: 25,        // 5 x 5 = 25 proposal/bulan
+  monthly_closing: 10          // 2 x 5 = 10 closing/bulan
 };
 
 const DEFAULT_SLA_CONFIG: SLAConfig = {
