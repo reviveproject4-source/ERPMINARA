@@ -1,8 +1,8 @@
 import type { KPITargetsConfig, SLAConfig, PerformanceZoneConfig, PointRulesConfig } from '../types/database';
 
-// 5x Target Multiplier Rules (Scaled Up as per User Directive)
+// KPI Target Configuration: Daily Contact & Executive Omset remain at original target, other metrics scaled 5x
 const DEFAULT_KPI_TARGETS: KPITargetsConfig = {
-  daily_prospect_contact: 50,  // 10 x 5 = 50 kontak/hari
+  daily_prospect_contact: 10,  // Tetap 10 kontak/hari (Sesuai instruksi)
   monthly_prospect: 250,       // 50 x 5 = 250 prospek/bulan
   monthly_discovery: 100,      // 20 x 5 = 100 discovery/bulan
   monthly_demo: 50,            // 10 x 5 = 50 demo/bulan
