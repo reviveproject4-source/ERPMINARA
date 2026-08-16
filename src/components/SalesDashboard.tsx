@@ -7,7 +7,8 @@ import { SalesAttendanceModal } from './SalesAttendanceModal';
 import { 
   Users, CheckCircle2, TrendingUp, Clock, 
   Award, ChevronRight, Plus, MapPin, Building, 
-  FileCheck, Filter, Calendar, RefreshCw, Layers, ShieldCheck, Mail, UserCheck
+  FileCheck, Filter, Calendar, RefreshCw, Layers, ShieldCheck, Mail, UserCheck,
+  AlertTriangle, DollarSign, HelpCircle
 } from 'lucide-react';
 
 interface SalesDashboardProps {
@@ -34,9 +35,13 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
   const discoveryCount = prospects.filter(p => ['DISCOVERY', 'DEMO', 'PROPOSAL', 'NEGOTIATION', 'WON'].includes(p.pipeline_stage)).length;
   const demoCount = prospects.filter(p => ['DEMO', 'PROPOSAL', 'NEGOTIATION', 'WON'].includes(p.pipeline_stage)).length;
   const proposalCount = proposals.length;
-  const closingCount = deals.filter(d => d.sales_id === currentSales.id && d.status !== 'CANCELLED').length;
+  
+  const myDeals = deals.filter(d => d.sales_id === currentSales.id && d.status !== 'CANCELLED');
+  const closingCount = myDeals.length;
+  const closingAmount = myDeals.reduce((acc, d) => acc + d.amount, 0);
   const pipelineValue = prospects.reduce((acc, p) => acc + (p.nilai_peluang || 0), 0);
 
+  // Calculate Opsi B Hybrid KPI Scorecard (Quantities + Nominal Omset)
   const scorecard: KPIOverallScorecard = KPIEngine.calculateScorecard({
     prospek: prospekCount,
     followup: followupCount,
@@ -44,6 +49,8 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
     demo: demoCount,
     proposal: proposalCount,
     closing: closingCount,
+    closing_amount: closingAmount,
+    target_closing_amount: 50000000, // Minimal Rp 50 Juta per Sales
     points: prospekCount * 10 + followupCount * 5 + discoveryCount * 25 + demoCount * 50 + proposalCount * 75 + closingCount * 200
   });
 
@@ -103,6 +110,40 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             <Plus className="w-4 h-4" />
             <span>+ Input Prospek Baru</span>
           </button>
+        </div>
+      </div>
+
+      {/* ⚠️ OPSI B BANNER: PENJELASAN ALASAN RAPOR & STRUKTUR GAJI (SOLUSI SUPAYA SALES TIDAK BINGUNG) */}
+      <div className={`glass-card p-4 border-2 rounded-2xl space-y-2 text-xs ${
+        scorecard.zone === 'OVERACHIEVEMENT' || scorecard.zone === 'MEETS_STANDARD' 
+          ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200' 
+          : scorecard.zone === 'NEAR_STANDARD' 
+          ? 'border-amber-500/40 bg-amber-500/10 text-amber-200' 
+          : 'border-rose-500/40 bg-rose-500/10 text-rose-200'
+      }`}>
+        <div className="flex items-center justify-between pb-1 border-b border-white/10">
+          <div className="flex items-center gap-2 font-bold">
+            <HelpCircle className="w-4 h-4 text-amber-400" />
+            <span>Penjelasan Rapor Kinerja & Struktur Gaji (Transparansi Kinerja Sales)</span>
+          </div>
+          <span className={`px-2.5 py-0.5 rounded-full font-bold font-mono text-[10px] ${
+            scorecard.zone === 'OVERACHIEVEMENT' || scorecard.zone === 'MEETS_STANDARD' ? 'badge-emerald' :
+            scorecard.zone === 'NEAR_STANDARD' ? 'badge-amber' : 'badge-rose'
+          }`}>
+            Status Rapor: {scorecard.zone} (Grade {scorecard.grade})
+          </span>
+        </div>
+
+        <div className="space-y-1.5 pt-1">
+          <p className="font-semibold flex items-center gap-1.5">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
+            <span>{scorecard.explanation_reason}</span>
+          </p>
+
+          <p className="text-[11px] text-gray-300 flex items-center gap-1.5 pl-5 font-mono">
+            <DollarSign className="w-4 h-4 shrink-0 text-emerald-400" />
+            <span>{scorecard.payroll_impact_explanation}</span>
+          </p>
         </div>
       </div>
 
@@ -174,7 +215,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             <span className="text-xs text-gray-400 ml-1">Deal</span>
           </div>
           <div className="text-[10px] text-amber-400 font-bold">
-            Target: {scorecard.cards.closing.target} Deals
+            Omset: Rp {(closingAmount / 1000000).toFixed(1)}M / 50M
           </div>
         </div>
 
@@ -200,8 +241,8 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
           <div className="flex items-center gap-2">
             <Award className="w-5 h-5 text-amber-400" />
             <div>
-              <h3 className="text-sm font-bold text-white">Personal Performance Scorecard</h3>
-              <p className="text-xs text-gray-400">Standar baseline (100%) vs Overachievement (&gt;100%)</p>
+              <h3 className="text-sm font-bold text-white">Personal Performance Scorecard (Opsi B Hybrid)</h3>
+              <p className="text-xs text-gray-400">Target Kuantitas (10 Closing) + Target Nominal (Rp 50 Juta)</p>
             </div>
           </div>
 
@@ -213,7 +254,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black text-white ${
               scorecard.grade === 'A+' ? 'bg-gradient-to-tr from-amber-500 to-yellow-300' :
               scorecard.grade === 'A' ? 'bg-gradient-to-tr from-emerald-500 to-teal-400' :
-              scorecard.grade === 'B' ? 'bg-gradient-to-tr from-blue-500 to-cyan-400' :
+              scorecard.grade === 'B' ? 'bg-gradient-to-tr from-amber-500 to-orange-400' :
               scorecard.grade === 'C' ? 'bg-gradient-to-tr from-amber-600 to-orange-500' :
               'bg-gradient-to-tr from-rose-600 to-red-500'
             }`}>
