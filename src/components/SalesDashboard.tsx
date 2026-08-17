@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Prospect, ProposalRecord, DealRecord } from '../types/database';
+import type { Prospect, ProposalRecord, DealRecord, SalesLevel } from '../types/database';
 import { KPIEngine } from '../engine/kpiEngine';
 import type { KPIOverallScorecard } from '../engine/kpiEngine';
 import { systemStore } from '../lib/supabase';
@@ -8,7 +8,7 @@ import {
   Users, CheckCircle2, TrendingUp, Clock, 
   Award, ChevronRight, Plus, MapPin, Building, 
   FileCheck, Filter, Calendar, RefreshCw, Layers, ShieldCheck, Mail, UserCheck,
-  AlertTriangle, DollarSign, HelpCircle
+  AlertTriangle, DollarSign, HelpCircle, GraduationCap, ShoppingBag, Radio, Sparkles
 } from 'lucide-react';
 
 interface SalesDashboardProps {
@@ -27,9 +27,10 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
   onRefresh
 }) => {
   const currentSales = systemStore.getCurrentEmployee();
+  const [salesLevel, setSalesLevel] = useState<SalesLevel>(currentSales.sales_level || 'MID_LEVEL');
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
 
-  // Calculate actuals
+  // Calculate actuals per product
   const prospekCount = prospects.length;
   const followupCount = prospects.reduce((acc, p) => acc + p.followup_count, 0);
   const discoveryCount = prospects.filter(p => ['DISCOVERY', 'DEMO', 'PROPOSAL', 'NEGOTIATION', 'WON'].includes(p.pipeline_stage)).length;
@@ -38,10 +39,23 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
   
   const myDeals = deals.filter(d => d.sales_id === currentSales.id && d.status !== 'CANCELLED');
   const closingCount = myDeals.length;
+
+  // Product-specific amounts
+  const pilinDeals = myDeals.filter(d => (d.produk_minat || []).includes('Pilin') || d.pilin_details);
+  const pilinAmount = pilinDeals.reduce((acc, d) => acc + d.amount, 0);
+
+  const caDeals = myDeals.filter(d => (d.produk_minat || []).includes('CeritaAnanda') || d.ceritaananda_details);
+  const caAmount = caDeals.reduce((acc, d) => acc + d.amount, 0);
+
+  const ksDeals = myDeals.filter(d => (d.produk_minat || []).includes('Kabarsantri') || d.kabarsantri_details);
+  const ksInitialAmount = ksDeals.reduce((acc, d) => acc + (d.amount * 0.5), 0);
+  const ksSubMonth2_6Amount = ksDeals.reduce((acc, d) => acc + (d.amount * 0.3), 0);
+  const ksRenewalMonth7Amount = ksDeals.reduce((acc, d) => acc + (d.amount * 0.2), 0);
+
   const closingAmount = myDeals.reduce((acc, d) => acc + d.amount, 0);
   const pipelineValue = prospects.reduce((acc, p) => acc + (p.nilai_peluang || 0), 0);
 
-  // Calculate Opsi B Hybrid KPI Scorecard (Quantities + Nominal Omset)
+  // Calculate Scorecard based on Sales Level (Junior vs Mid-Level) & Minara Bible Rules
   const scorecard: KPIOverallScorecard = KPIEngine.calculateScorecard({
     prospek: prospekCount,
     followup: followupCount,
@@ -49,8 +63,13 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
     demo: demoCount,
     proposal: proposalCount,
     closing: closingCount,
+    sales_level: salesLevel,
+    pilin_amount: pilinAmount,
+    ceritaananda_amount: caAmount,
+    kabarsantri_initial_amount: ksInitialAmount,
+    kabarsantri_subscription_month2_6_amount: ksSubMonth2_6Amount,
+    kabarsantri_renewal_month7_amount: ksRenewalMonth7Amount,
     closing_amount: closingAmount,
-    target_closing_amount: 50000000, // Minimal Rp 50 Juta per Sales
     points: prospekCount * 10 + followupCount * 5 + discoveryCount * 25 + demoCount * 50 + proposalCount * 75 + closingCount * 200
   });
 
@@ -62,7 +81,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
   return (
     <div className="text-white p-4 md:p-6 max-w-7xl mx-auto space-y-5">
       
-      {/* Sales Profile Header & Presensi Button */}
+      {/* Sales Profile Header & Sales Level Switcher */}
       <div className="glass-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-l-4 border-emerald-500">
         <div className="flex items-center gap-4">
           <img 
@@ -85,14 +104,38 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          {/* PRESENSI SALES FIELD BUTTON */}
+        {/* Level Switcher & Actions */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+          {/* Sales Level Toggle */}
+          <div className="flex items-center bg-gray-900/90 p-1 rounded-xl border border-white/10 text-xs">
+            <button
+              onClick={() => setSalesLevel('JUNIOR')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                salesLevel === 'JUNIOR' 
+                  ? 'bg-blue-600 text-white shadow' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              🌱 Junior (Bulan 1-3)
+            </button>
+            <button
+              onClick={() => setSalesLevel('MID_LEVEL')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                salesLevel === 'MID_LEVEL' 
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              🚀 Menengah (Bulan 4+)
+            </button>
+          </div>
+
           <button 
             onClick={() => setIsAttendanceModalOpen(true)}
             className="btn-secondary text-xs py-2 px-3 bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
           >
             <UserCheck className="w-4 h-4 text-emerald-400" />
-            <span>📍 Presensi Sales (GPS & Waktu)</span>
+            <span>📍 Presensi Sales</span>
           </button>
 
           <button 
@@ -108,12 +151,70 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             className="btn-primary w-full md:w-auto justify-center text-xs py-2 px-4"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Input Prospek Baru</span>
+            <span>+ Input Prospek</span>
           </button>
         </div>
       </div>
 
-      {/* ⚠️ OPSI B BANNER: PENJELASAN ALASAN RAPOR & STRUKTUR GAJI (SOLUSI SUPAYA SALES TIDAK BINGUNG) */}
+      {/* 💳 PRODUCT COMMISSION BREAKDOWN BANNER (PERHITUNGAN GAJI DIVISI KEUANGAN) */}
+      <div className="glass-card p-4 border border-indigo-500/30 bg-indigo-500/10 rounded-2xl space-y-3 text-xs">
+        <div className="flex items-center justify-between pb-2 border-b border-white/10">
+          <div className="flex items-center gap-2 font-bold text-indigo-300">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>Struktur Komisi Produk untuk Perhitungan Gaji Divisi Keuangan (Minara Bible)</span>
+          </div>
+          <span className="badge-blue text-[10px] px-2.5 py-0.5 font-bold font-mono">
+            Total Komisi: Rp {scorecard.total_commission_all_products.toLocaleString('id-ID')}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {/* PILIN Commission */}
+          <div className="bg-gray-900/80 p-3 rounded-xl border border-blue-500/30 space-y-1">
+            <div className="flex justify-between items-center text-blue-300 font-bold">
+              <span className="flex items-center gap-1"><ShoppingBag className="w-3.5 h-3.5" /> PILIN (UMKM BOS)</span>
+              <span className="badge-blue text-[9px] font-mono">Komisi 5%</span>
+            </div>
+            <div className="text-gray-300 font-mono text-[11px] justify-between flex">
+              <span>Implementasi: Rp {pilinAmount.toLocaleString('id-ID')}</span>
+            </div>
+            <div className="text-emerald-400 font-bold font-mono text-xs pt-1 border-t border-white/5 flex justify-between">
+              <span>Komisi Gaji:</span>
+              <span>Rp {(pilinAmount * 0.05).toLocaleString('id-ID')}</span>
+            </div>
+          </div>
+
+          {/* CeritaAnanda Commission */}
+          <div className="bg-gray-900/80 p-3 rounded-xl border border-emerald-500/30 space-y-1">
+            <div className="flex justify-between items-center text-emerald-300 font-bold">
+              <span className="flex items-center gap-1"><GraduationCap className="w-3.5 h-3.5" /> CeritaAnanda (PAUD/TK)</span>
+              <span className="badge-emerald text-[9px] font-mono">Komisi 5%</span>
+            </div>
+            <div className="text-gray-300 font-mono text-[11px] justify-between flex">
+              <span>Implementasi: Rp {caAmount.toLocaleString('id-ID')}</span>
+            </div>
+            <div className="text-emerald-400 font-bold font-mono text-xs pt-1 border-t border-white/5 flex justify-between">
+              <span>Komisi Gaji:</span>
+              <span>Rp {(caAmount * 0.05).toLocaleString('id-ID')}</span>
+            </div>
+          </div>
+
+          {/* Kabarsantri Commission */}
+          <div className="bg-gray-900/80 p-3 rounded-xl border border-purple-500/30 space-y-1">
+            <div className="flex justify-between items-center text-purple-300 font-bold">
+              <span className="flex items-center gap-1"><Radio className="w-3.5 h-3.5" /> Kabarsantri (Pesantren)</span>
+              <span className="badge-purple text-[9px] font-mono">5% / 2% / 2%</span>
+            </div>
+            <div className="text-gray-300 font-mono text-[10px] space-y-0.5">
+              <div className="flex justify-between"><span>Aktivasi Bln 1 (5%):</span><span>Rp {(ksInitialAmount * 0.05).toLocaleString('id-ID')}</span></div>
+              <div className="flex justify-between"><span>Langganan Bln 2-6 (2%):</span><span>Rp {(ksSubMonth2_6Amount * 0.02).toLocaleString('id-ID')}</span></div>
+              <div className="flex justify-between"><span>Perpanjangan Bln 7+ (2%):</span><span>Rp {(ksRenewalMonth7Amount * 0.02).toLocaleString('id-ID')}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* OPSI B BANNER: PENJELASAN ALASAN RAPOR & STRUKTUR GAJI */}
       <div className={`glass-card p-4 border-2 rounded-2xl space-y-2 text-xs ${
         scorecard.zone === 'OVERACHIEVEMENT' || scorecard.zone === 'MEETS_STANDARD' 
           ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200' 
@@ -124,7 +225,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
         <div className="flex items-center justify-between pb-1 border-b border-white/10">
           <div className="flex items-center gap-2 font-bold">
             <HelpCircle className="w-4 h-4 text-amber-400" />
-            <span>Penjelasan Rapor Kinerja & Struktur Gaji (Transparansi Kinerja Sales)</span>
+            <span>Penjelasan Rapor Kinerja Level {salesLevel} & Gaji Divisi Keuangan</span>
           </div>
           <span className={`px-2.5 py-0.5 rounded-full font-bold font-mono text-[10px] ${
             scorecard.zone === 'OVERACHIEVEMENT' || scorecard.zone === 'MEETS_STANDARD' ? 'badge-emerald' :
@@ -151,7 +252,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="glass-card p-4 flex flex-col justify-between hover:border-emerald-500/40">
           <div className="flex items-center justify-between text-gray-400 text-xs font-semibold">
-            <span>Lead Aktif</span>
+            <span>Data Prospek (10%)</span>
             <Users className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="my-1.5">
@@ -165,7 +266,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
 
         <div className="glass-card p-4 flex flex-col justify-between hover:border-teal-500/40">
           <div className="flex items-center justify-between text-gray-400 text-xs font-semibold">
-            <span>Discovery</span>
+            <span>Discovery (10%)</span>
             <Building className="w-4 h-4 text-teal-400" />
           </div>
           <div className="my-1.5">
@@ -179,7 +280,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
 
         <div className="glass-card p-4 flex flex-col justify-between hover:border-cyan-500/40">
           <div className="flex items-center justify-between text-gray-400 text-xs font-semibold">
-            <span>Demo SOP</span>
+            <span>Demo SOP (15%)</span>
             <FileCheck className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="my-1.5">
@@ -193,7 +294,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
 
         <div className="glass-card p-4 flex flex-col justify-between hover:border-blue-500/40">
           <div className="flex items-center justify-between text-gray-400 text-xs font-semibold">
-            <span>Proposal</span>
+            <span>Proposal SLA (15%)</span>
             <Clock className="w-4 h-4 text-blue-400" />
           </div>
           <div className="my-1.5">
@@ -207,7 +308,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
 
         <div className="glass-card p-4 flex flex-col justify-between hover:border-amber-500/40 bg-amber-500/5">
           <div className="flex items-center justify-between text-amber-300 text-xs font-bold">
-            <span>Closing</span>
+            <span>Closing (50%)</span>
             <CheckCircle2 className="w-4 h-4 text-amber-400" />
           </div>
           <div className="my-1.5">
@@ -215,7 +316,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             <span className="text-xs text-gray-400 ml-1">Deal</span>
           </div>
           <div className="text-[10px] text-amber-400 font-bold">
-            Omset: Rp {(closingAmount / 1000000).toFixed(1)}M / 50M
+            Omset: Rp {(closingAmount / 1000000).toFixed(1)}M / {(scorecard.target_closing_amount / 1000000).toFixed(0)}M
           </div>
         </div>
 
@@ -241,8 +342,12 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
           <div className="flex items-center gap-2">
             <Award className="w-5 h-5 text-amber-400" />
             <div>
-              <h3 className="text-sm font-bold text-white">Personal Performance Scorecard (Opsi B Hybrid)</h3>
-              <p className="text-xs text-gray-400">Target Kuantitas (10 Closing) + Target Nominal (Rp 50 Juta)</p>
+              <h3 className="text-sm font-bold text-white">
+                Personal Performance Scorecard (Minara Bible — Level {salesLevel})
+              </h3>
+              <p className="text-xs text-gray-400">
+                Prospek 10% • Discovery 10% • Demo 15% • Proposal 15% • Closing 50%
+              </p>
             </div>
           </div>
 
@@ -310,7 +415,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
 
         {todaysActions.length === 0 ? (
           <div className="text-center py-4 text-gray-400 text-xs">
-            🎉 Belum ada prospek yang diinput. Klik "+ Input Prospek Baru" untuk mulai kanvasing.
+            🎉 Belum ada prospek yang diinput. Klik "+ Input Prospek" untuk mulai kanvasing.
           </div>
         ) : (
           <div className="space-y-2">

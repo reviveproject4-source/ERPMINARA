@@ -1,13 +1,23 @@
-import type { KPITargetsConfig, SLAConfig, PerformanceZoneConfig, PointRulesConfig } from '../types/database';
+import type { KPITargetsConfig, SLAConfig, PerformanceZoneConfig, PointRulesConfig, SalesLevel } from '../types/database';
 
-// KPI Target Configuration: Daily Contact & Executive Omset remain at original target, other metrics scaled 5x
-const DEFAULT_KPI_TARGETS: KPITargetsConfig = {
-  daily_prospect_contact: 10,  // Tetap 10 kontak/hari (Sesuai instruksi)
-  monthly_prospect: 250,       // 50 x 5 = 250 prospek/bulan
-  monthly_discovery: 100,      // 20 x 5 = 100 discovery/bulan
-  monthly_demo: 50,            // 10 x 5 = 50 demo/bulan
-  monthly_proposal: 25,        // 5 x 5 = 25 proposal/bulan
-  monthly_closing: 10          // 2 x 5 = 10 closing/bulan
+export const JUNIOR_KPI_TARGETS: KPITargetsConfig = {
+  daily_prospect_contact: 10,
+  monthly_prospect: 100,       // Junior Level Target (Bulan 1-3)
+  monthly_discovery: 40,
+  monthly_demo: 20,
+  monthly_proposal: 10,
+  monthly_closing: 5,
+  target_closing_amount: 25000000 // Rp 25 Juta
+};
+
+export const MID_LEVEL_KPI_TARGETS: KPITargetsConfig = {
+  daily_prospect_contact: 10,
+  monthly_prospect: 250,       // Mid-Level Target (Bulan 4+)
+  monthly_discovery: 100,
+  monthly_demo: 50,
+  monthly_proposal: 25,
+  monthly_closing: 15,          // 15 - 20 closing/bulan
+  target_closing_amount: 100000000 // Rp 100 Juta
 };
 
 const DEFAULT_SLA_CONFIG: SLAConfig = {
@@ -33,17 +43,25 @@ const DEFAULT_POINT_RULES: PointRulesConfig = {
 };
 
 class ConfigEngine {
-  private kpiTargets: KPITargetsConfig = { ...DEFAULT_KPI_TARGETS };
+  private juniorTargets: KPITargetsConfig = { ...JUNIOR_KPI_TARGETS };
+  private midLevelTargets: KPITargetsConfig = { ...MID_LEVEL_KPI_TARGETS };
   private slaConfig: SLAConfig = { ...DEFAULT_SLA_CONFIG };
   private performanceZones: PerformanceZoneConfig[] = [...DEFAULT_PERFORMANCE_ZONES];
   private pointRules: PointRulesConfig = { ...DEFAULT_POINT_RULES };
 
-  public getKPITargets(): KPITargetsConfig {
-    return { ...this.kpiTargets };
+  public getKPITargets(level: SalesLevel = 'MID_LEVEL'): KPITargetsConfig {
+    if (level === 'JUNIOR') {
+      return { ...this.juniorTargets };
+    }
+    return { ...this.midLevelTargets };
   }
 
-  public setKPITargets(newTargets: Partial<KPITargetsConfig>): void {
-    this.kpiTargets = { ...this.kpiTargets, ...newTargets };
+  public setKPITargets(newTargets: Partial<KPITargetsConfig>, level: SalesLevel = 'MID_LEVEL'): void {
+    if (level === 'JUNIOR') {
+      this.juniorTargets = { ...this.juniorTargets, ...newTargets };
+    } else {
+      this.midLevelTargets = { ...this.midLevelTargets, ...newTargets };
+    }
   }
 
   public getSLAConfig(): SLAConfig {

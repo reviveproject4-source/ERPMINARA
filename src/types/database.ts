@@ -2,6 +2,8 @@ export type UserRole = 'sales' | 'cs' | 'finance' | 'manager' | 'founder' | 'sup
 
 export type MinaraProduct = 'CeritaAnanda' | 'Kabarsantri' | 'Pilin';
 
+export type SalesLevel = 'JUNIOR' | 'MID_LEVEL';
+
 export type ProspectStatus = 
   | 'ACTIVE' 
   | 'NURTURE' 
@@ -66,20 +68,32 @@ export interface VisitProof {
   is_verified: boolean;
 }
 
+// Product Commission Calculation Structure (Sesuai Aturan Minara Bible)
+export interface ProductCommissionBreakdown {
+  product: MinaraProduct;
+  implementation_amount: number;
+  subscription_amount: number;
+  implementation_commission_5pct: number; // 5% Komisi Implementasi (Pilin, CeritaAnanda, & Kabarsantri Bulan 1)
+  subscription_commission_2pct: number;   // 2% Subscription (Kabarsantri Bulan 2-6)
+  renewal_commission_2pct: number;        // 2% Perpanjangan (Kabarsantri Bulan 7+)
+  total_commission: number;
+}
+
 // Sales Attendance Record (Berhubungan dengan Data Keuangan & Payroll Gaji/Harian)
 export interface AttendanceRecord {
   id: string;
   tenant_id: string;
   sales_id: string;
   sales_name: string;
+  sales_level?: SalesLevel;
   type: AttendanceType;
-  timestamp: string; // Waktu Presensi Traceable
-  gps_lat: number;   // Lokasi GPS Latitude
-  gps_lng: number;   // Lokasi GPS Longitude
-  geo_address: string; // Tempat Alamat Lengkap
-  photo_url: string; // Foto Selfie Presensi Field
+  timestamp: string;
+  gps_lat: number;
+  gps_lng: number;
+  geo_address: string;
+  photo_url: string;
   notes?: string;
-  is_verified_finance: boolean; // Verifikasi Keuangan untuk Pencairan Gaji / Uang Harian
+  is_verified_finance: boolean;
   created_at: string;
 }
 
@@ -117,6 +131,7 @@ export interface KabarsantriDetails {
   email?: string;
   wilayah: string;
   jumlah_santri?: number;
+  tenure_months?: number; // Bulan ke-n langganan (untuk hitung komisi bulan ke-2 s/d bulan ke-7 perpanjangan)
 }
 
 export interface Employee {
@@ -125,6 +140,7 @@ export interface Employee {
   name: string;
   email: string;
   role: UserRole;
+  sales_level?: SalesLevel; // 'JUNIOR' (Bulan 1-3) | 'MID_LEVEL' (Bulan 4+)
   avatar?: string;
   phone?: string;
 }
@@ -136,6 +152,7 @@ export interface KPITargetsConfig {
   monthly_demo: number;
   monthly_proposal: number;
   monthly_closing: number;
+  target_closing_amount: number;
 }
 
 export interface SLAConfig {
@@ -169,6 +186,7 @@ export interface Prospect {
   wilayah: string;
   sales_owner_id: string;
   sales_owner_name?: string;
+  sales_level?: SalesLevel;
   source: string;
   produk_minat: MinaraProduct[];
   
@@ -258,6 +276,7 @@ export interface DealRecord {
   prospect_nama?: string;
   sales_id: string;
   sales_name?: string;
+  sales_level?: SalesLevel;
   cs_verifier_id?: string;
   finance_verifier_id?: string;
   amount: number;
@@ -265,7 +284,9 @@ export interface DealRecord {
   produk_minat?: MinaraProduct[];
   pilin_details?: PilinDetails;
   ceritaananda_details?: CeritaAnandaDetails;
+  kabarsantri_details?: KabarsantriDetails;
   visit_proof?: VisitProof;
+  commission_breakdown?: ProductCommissionBreakdown[];
   status: DealLifecycleStatus;
   closed_at: string;
   implemented_at?: string;
@@ -291,6 +312,7 @@ export interface CSTenantRecord {
   produk_minat?: MinaraProduct[];
   pilin_details?: PilinDetails;
   ceritaananda_details?: CeritaAnandaDetails;
+  kabarsantri_details?: KabarsantriDetails;
   visit_proof?: VisitProof;
   cs_owner_id: string;
   cs_owner_name: string;
