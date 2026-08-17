@@ -6,17 +6,17 @@ export const JUNIOR_KPI_TARGETS: KPITargetsConfig = {
   monthly_discovery: 40,
   monthly_demo: 20,
   monthly_proposal: 10,
-  monthly_closing: 5,
-  target_closing_amount: 25000000 // Rp 25 Juta
+  monthly_closing: 10,          // Target Closing 10 untuk Junior
+  target_closing_amount: 35000000 // Rp 35 Juta
 };
 
 export const MID_LEVEL_KPI_TARGETS: KPITargetsConfig = {
   daily_prospect_contact: 10,
-  monthly_prospect: 250,       // Mid-Level Target (Bulan 4+)
+  monthly_prospect: 250,       // Senior / Experienced Level Target (Bulan 4+)
   monthly_discovery: 100,
   monthly_demo: 50,
   monthly_proposal: 25,
-  monthly_closing: 15,          // 15 - 20 closing/bulan
+  monthly_closing: 20,          // Target Closing 20 untuk Senior
   target_closing_amount: 100000000 // Rp 100 Juta
 };
 

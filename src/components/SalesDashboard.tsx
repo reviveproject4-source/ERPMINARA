@@ -46,6 +46,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
 
   const caDeals = myDeals.filter(d => (d.produk_minat || []).includes('CeritaAnanda') || d.ceritaananda_details);
   const caAmount = caDeals.reduce((acc, d) => acc + d.amount, 0);
+  const caCount = caDeals.length;
 
   const ksDeals = myDeals.filter(d => (d.produk_minat || []).includes('Kabarsantri') || d.kabarsantri_details);
   const ksInitialAmount = ksDeals.reduce((acc, d) => acc + (d.amount * 0.5), 0);
@@ -55,7 +56,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
   const closingAmount = myDeals.reduce((acc, d) => acc + d.amount, 0);
   const pipelineValue = prospects.reduce((acc, p) => acc + (p.nilai_peluang || 0), 0);
 
-  // Calculate Scorecard based on Sales Level (Junior vs Mid-Level) & Minara Bible Rules
+  // Calculate Scorecard based on Sales Level (Junior vs Mid-Level/Senior) & Updated Product Rules
   const scorecard: KPIOverallScorecard = KPIEngine.calculateScorecard({
     prospek: prospekCount,
     followup: followupCount,
@@ -66,6 +67,7 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
     sales_level: salesLevel,
     pilin_amount: pilinAmount,
     ceritaananda_amount: caAmount,
+    ceritaananda_count: caCount,
     kabarsantri_initial_amount: ksInitialAmount,
     kabarsantri_subscription_month2_6_amount: ksSubMonth2_6Amount,
     kabarsantri_renewal_month7_amount: ksRenewalMonth7Amount,
