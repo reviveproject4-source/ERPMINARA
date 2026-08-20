@@ -76,9 +76,9 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
   };
 
   const handleVerifyFinance = (dealId: string) => {
-    systemStore.updateDealStatus(dealId, 'READY_FOR_ACTIVATION', currentEmployee.id);
+    systemStore.verifyPaymentProof(dealId);
     onRefresh();
-    alert('✅ Verifikasi Pembayaran Finance Selesai! Lampu Hijau disiapkan untuk Super Admin.');
+    alert('💳 KEUANGAN / CS: Bukti Pembayaran Terverifikasi! Status berubah menjadi PAYMENT_VERIFIED.');
   };
 
   const handleActivateTenantSuperAdmin = (dealId: string) => {
@@ -86,9 +86,9 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
       alert('⛔ HANYA Founder / Super Admin yang berhak menyetujui Aktivasi Tenant Sah!');
       return;
     }
-    systemStore.updateDealStatus(dealId, 'ACTIVE_TENANT', currentEmployee.id);
+    systemStore.activateLiveProduction1Click(dealId, currentEmployee.id);
     onRefresh();
-    alert('🎉 KONTRAK SAH & APLIKASI AKTIF! Sales berhak mendapatkan Komisi / Reward.');
+    alert('🚀 SUPER ADMIN / DEVELOPER: 1-Click Live Production Aktif! Database produksi bersih & Kredensial telah diterbitkan!');
   };
 
   const handleVerifyAttendanceFinance = (attId: string) => {
@@ -464,16 +464,39 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
                 </div>
               </div>
 
+              {/* CLIENT PIPELINE TRANSITION STATUS & CREDENTIALS BADGE */}
+              {deal.production_credentials && (
+                <div className="bg-emerald-950/60 p-3 rounded-xl border border-emerald-500/40 text-emerald-200 text-xs space-y-1 font-mono">
+                  <div className="flex items-center justify-between font-bold text-emerald-300">
+                    <span>🚀 KREDENSIAL LIVE PRODUCTION AKTIF (Super Admin Approved)</span>
+                    <span className="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">STATUS: LIVE_PRODUCTION</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
+                    <div>Kode Tenant: <strong className="text-white">{deal.production_credentials.tenant_code}</strong></div>
+                    <div>Email Master: <strong className="text-white">{deal.production_credentials.master_email}</strong></div>
+                    <div>Password Temp: <strong className="text-amber-300">{deal.production_credentials.temporary_pass}</strong></div>
+                  </div>
+                </div>
+              )}
+
               {/* HANDOFF ACTION CONTROLS */}
               <div className="pt-2 border-t border-white/5 flex flex-wrap items-center justify-end gap-2 text-xs">
                 
                 {deal.status === 'CLOSED_PENDING' && (
-                  <button 
-                    onClick={() => handleVerifyCS(deal.id)}
-                    className="btn-primary text-xs py-1.5 px-3 bg-amber-600 hover:bg-amber-500"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" /> 1. Verifikasi CS (Validasi Onboarding)
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => handleVerifyCS(deal.id)}
+                      className="btn-primary text-xs py-1.5 px-3 bg-amber-600 hover:bg-amber-500"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" /> 1. Verifikasi CS (Validasi Onboarding)
+                    </button>
+                    <button 
+                      onClick={() => handleVerifyFinance(deal.id)}
+                      className="btn-secondary text-xs py-1.5 px-3 bg-blue-600/20 border-blue-500/40 text-blue-300 hover:bg-blue-600/30 font-bold"
+                    >
+                      💳 Verifikasi Bukti Bayar (PAYMENT_VERIFIED)
+                    </button>
+                  </div>
                 )}
 
                 {deal.status === 'PENDING_FINANCE' && (
@@ -481,22 +504,22 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
                     onClick={() => handleVerifyFinance(deal.id)}
                     className="btn-primary text-xs py-1.5 px-3 bg-blue-600 hover:bg-blue-500"
                   >
-                    <DollarSign className="w-3.5 h-3.5" /> 2. Verifikasi Finance (Kas Diterima)
+                    <DollarSign className="w-3.5 h-3.5" /> 2. Verifikasi Pembayaran (PAYMENT_VERIFIED)
                   </button>
                 )}
 
-                {deal.status === 'READY_FOR_ACTIVATION' && (
+                {(deal.status === 'READY_FOR_ACTIVATION' || deal.client_pipeline_status === 'PAYMENT_VERIFIED') && deal.client_pipeline_status !== 'LIVE_PRODUCTION' && (
                   <button 
                     onClick={() => handleActivateTenantSuperAdmin(deal.id)}
-                    className="btn-primary text-xs py-1.5 px-3 bg-gradient-to-r from-emerald-500 to-teal-400 font-bold text-white animate-pulse"
+                    className="btn-primary text-xs py-1.5 px-3 bg-gradient-to-r from-emerald-500 to-teal-400 font-extrabold text-white animate-pulse shadow-lg"
                   >
-                    <Lock className="w-3.5 h-3.5" /> 🚀 Super Admin: Sahkan & Aktifkan Aplikasi!
+                    <Lock className="w-3.5 h-3.5" /> 🟢 1-CLICK AKTIFKAN LIVE PRODUCTION
                   </button>
                 )}
 
-                {deal.status === 'ACTIVE_TENANT' && (
+                {deal.client_pipeline_status === 'LIVE_PRODUCTION' && (
                   <span className="text-emerald-400 text-xs font-bold flex items-center gap-1">
-                    <Award className="w-4 h-4 text-amber-400" /> Kontrak Sah & Komisi Sales Eligible
+                    <Award className="w-4 h-4 text-amber-400" /> Live Production Active & Komisi Sales Eligible
                   </span>
                 )}
               </div>

@@ -42,8 +42,10 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
   );
   const [isGpsCapturing, setIsGpsCapturing] = useState(false);
 
-  // General Email Field (Applies to all products)
+  // General Email & Subscription Package Fields
   const [email, setEmail] = useState<string>(prospect?.email || '');
+  const [noWaUsaha, setNoWaUsaha] = useState<string>(prospect?.no_wa_usaha || '');
+  const [packageType, setPackageType] = useState<'BASIC' | 'PRO' | 'ENTERPRISE'>(prospect?.package_type || 'PRO');
 
   // PILIN (UMKM Retail & Jasa) Specific Fields
   const [pilinNamaToko, setPilinNamaToko] = useState(prospect?.pilin_details?.nama_toko || prospect?.nama_lembaga || '');
@@ -192,10 +194,12 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
         nama_lembaga: mainDisplayName,
         pic: mainPic,
         no_hp: mainPhone,
+        no_wa_usaha: noWaUsaha,
         email,
         wilayah: mainWilayah,
         source,
         produk_minat: produkMinat,
+        package_type: packageType,
         visit_proof: visitProofData,
         pilin_details: pilinData,
         ceritaananda_details: caData,
@@ -211,12 +215,15 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
         nama_lembaga: mainDisplayName,
         pic: mainPic,
         no_hp: mainPhone,
+        no_wa_usaha: noWaUsaha,
         email,
         wilayah: mainWilayah,
         sales_owner_id: currentSales.id,
         sales_owner_name: currentSales.name,
         source,
         produk_minat: produkMinat,
+        package_type: packageType,
+        client_pipeline_status: 'DEMO_TRIAL',
         visit_proof: visitProofData,
         pilin_details: pilinData,
         ceritaananda_details: caData,
@@ -410,19 +417,71 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
               </div>
             </div>
 
-            {/* MANDATORY EMAIL FIELD (APPLIES TO ALL PRODUCTS) */}
-            <div className="bg-gray-900/80 p-3 rounded-xl border border-white/10">
-              <label className="block text-gray-300 font-bold mb-1 flex items-center gap-1.5 text-xs">
-                <Mail className="w-4 h-4 text-cyan-400" /> Alamat Email Lembaga / Usaha (Berlaku Semua Produk) *
+            {/* MANDATORY EMAIL & SUBSCRIPTION PACKAGE SELECTION (MEMBERIKAN DERAJAT SAASTRIAL) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-gray-900/80 p-3 rounded-xl border border-white/10">
+                <label className="block text-gray-300 font-bold mb-1 flex items-center gap-1.5 text-xs">
+                  <Mail className="w-4 h-4 text-cyan-400" /> Alamat Email Lembaga / Usaha *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@lembaga.com"
+                  className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono text-xs"
+                />
+              </div>
+
+              <div className="bg-gray-900/80 p-3 rounded-xl border border-white/10">
+                <label className="block text-gray-300 font-bold mb-1 flex items-center gap-1.5 text-xs">
+                  <Send className="w-4 h-4 text-emerald-400" /> No. WA Resmi Usaha (Grup Admin) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={noWaUsaha}
+                  onChange={(e) => setNoWaUsaha(e.target.value)}
+                  placeholder="0812xxxxxxxx (WA Usaha)"
+                  className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono text-xs"
+                />
+              </div>
+            </div>
+
+            {/* PAKET SUBSKRIPSI SELECTION (FOR DEMO & TRIAL PRODUCTION) */}
+            <div className="bg-gray-900/90 p-3 rounded-xl border border-amber-500/30 space-y-1.5">
+              <label className="block text-amber-300 font-bold text-xs flex items-center gap-1.5">
+                <Layers className="w-4 h-4 text-amber-400" /> Pilihan Paket Subskripsi (Auto Generate Demo & Trial):
               </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Contoh: admin@lembaga.com / owner@tokoberkah.com"
-                className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono"
-              />
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setPackageType('BASIC')}
+                  className={`py-1.5 px-2 rounded-lg border font-bold text-xs transition-all ${
+                    packageType === 'BASIC' ? 'bg-blue-600 text-white border-blue-400' : 'bg-gray-800 text-gray-400 border-white/5'
+                  }`}
+                >
+                  📦 BASIC (Rp 1.5M)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPackageType('PRO')}
+                  className={`py-1.5 px-2 rounded-lg border font-bold text-xs transition-all ${
+                    packageType === 'PRO' ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-gray-800 text-gray-400 border-white/5'
+                  }`}
+                >
+                  ⭐ PRO (Rp 3.5M)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPackageType('ENTERPRISE')}
+                  className={`py-1.5 px-2 rounded-lg border font-bold text-xs transition-all ${
+                    packageType === 'ENTERPRISE' ? 'bg-purple-600 text-white border-purple-400' : 'bg-gray-800 text-gray-400 border-white/5'
+                  }`}
+                >
+                  🚀 ENTERPRISE (Custom)
+                </button>
+              </div>
             </div>
 
             {/* GENERAL CANVASSING PRODUCTS TOGGLE */}

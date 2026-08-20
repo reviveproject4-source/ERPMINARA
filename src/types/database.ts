@@ -4,6 +4,10 @@ export type MinaraProduct = 'CeritaAnanda' | 'Kabarsantri' | 'Pilin';
 
 export type SalesLevel = 'JUNIOR' | 'MID_LEVEL';
 
+export type SubscriptionPackage = 'BASIC' | 'PRO' | 'ENTERPRISE';
+
+export type ClientPipelineStatus = 'DEMO_TRIAL' | 'PAYMENT_VERIFIED' | 'LIVE_PRODUCTION';
+
 export type ProspectStatus = 
   | 'ACTIVE' 
   | 'NURTURE' 
@@ -68,18 +72,27 @@ export interface VisitProof {
   is_verified: boolean;
 }
 
-// Product Commission Calculation Structure (Sesuai Aturan Minara Bible)
+// Product Commission Calculation Structure
 export interface ProductCommissionBreakdown {
   product: MinaraProduct;
   implementation_amount: number;
   subscription_amount: number;
-  implementation_commission_5pct: number; // 5% Komisi Implementasi (Pilin, CeritaAnanda, & Kabarsantri Bulan 1)
-  subscription_commission_2pct: number;   // 2% Subscription (Kabarsantri Bulan 2-6)
-  renewal_commission_2pct: number;        // 2% Perpanjangan (Kabarsantri Bulan 7+)
+  implementation_commission_5pct: number;
+  subscription_commission_2pct: number;
+  renewal_commission_2pct: number;
   total_commission: number;
 }
 
-// Sales Attendance Record (Berhubungan dengan Data Keuangan & Payroll Gaji/Harian)
+// Production Account Credentials for 1-Click Activate
+export interface ProductionCredentials {
+  tenant_code: string;
+  master_email: string;
+  temporary_pass: string;
+  activated_at: string;
+  activated_by: string;
+}
+
+// Sales Attendance Record
 export interface AttendanceRecord {
   id: string;
   tenant_id: string;
@@ -97,7 +110,7 @@ export interface AttendanceRecord {
   created_at: string;
 }
 
-// Specific Details for PILIN (BOS UMKM Retail & Jasa)
+// Specific Details for PILIN
 export interface PilinDetails {
   nama_toko: string;
   alamat: string;
@@ -111,7 +124,7 @@ export interface PilinDetails {
   app_pembayaran_saat_ini?: string;
 }
 
-// Specific Details for CeritaAnanda (Assesmen PAUD & TK)
+// Specific Details for CeritaAnanda
 export interface CeritaAnandaDetails {
   nama_yayasan: string;
   nama_tk: string;
@@ -123,7 +136,7 @@ export interface CeritaAnandaDetails {
   jumlah_murid: number;
 }
 
-// Specific Details for Kabarsantri (Pesantren & Lembaga Islam)
+// Specific Details for Kabarsantri
 export interface KabarsantriDetails {
   nama_lembaga: string;
   pic: string;
@@ -131,7 +144,7 @@ export interface KabarsantriDetails {
   email?: string;
   wilayah: string;
   jumlah_santri?: number;
-  tenure_months?: number; // Bulan ke-n langganan (untuk hitung komisi bulan ke-2 s/d bulan ke-7 perpanjangan)
+  tenure_months?: number;
 }
 
 export interface Employee {
@@ -140,7 +153,7 @@ export interface Employee {
   name: string;
   email: string;
   role: UserRole;
-  sales_level?: SalesLevel; // 'JUNIOR' (Bulan 1-3) | 'MID_LEVEL' (Bulan 4+)
+  sales_level?: SalesLevel;
   avatar?: string;
   phone?: string;
 }
@@ -182,11 +195,14 @@ export interface Prospect {
   nama_lembaga: string;
   pic: string;
   no_hp: string;
+  no_wa_usaha?: string;
   email?: string;
   wilayah: string;
   sales_owner_id: string;
   sales_owner_name?: string;
   sales_level?: SalesLevel;
+  package_type?: SubscriptionPackage;
+  client_pipeline_status?: ClientPipelineStatus;
   source: string;
   produk_minat: MinaraProduct[];
   
@@ -277,10 +293,15 @@ export interface DealRecord {
   sales_id: string;
   sales_name?: string;
   sales_level?: SalesLevel;
+  package_type?: SubscriptionPackage;
+  client_pipeline_status?: ClientPipelineStatus;
+  payment_proof_url?: string;
+  production_credentials?: ProductionCredentials;
   cs_verifier_id?: string;
   finance_verifier_id?: string;
   amount: number;
   email?: string;
+  no_wa_usaha?: string;
   produk_minat?: MinaraProduct[];
   pilin_details?: PilinDetails;
   ceritaananda_details?: CeritaAnandaDetails;
@@ -307,6 +328,9 @@ export interface CSTenantRecord {
   pic: string;
   no_hp: string;
   email?: string;
+  package_type?: SubscriptionPackage;
+  client_pipeline_status?: ClientPipelineStatus;
+  production_credentials?: ProductionCredentials;
   sales_owner_name: string;
   amount: number;
   produk_minat?: MinaraProduct[];

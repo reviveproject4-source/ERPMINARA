@@ -250,6 +250,99 @@ class SystemStore {
     return deal;
   }
 
+  // AI AUTOMATED FINANCE WORKFLOW (Otomatisasi Penerbitan Invoice & Payment Gate)
+  public autoProcessAIFinanceBilling(dealId: string): DealRecord | null {
+    const idx = this.deals.findIndex(d => d.id === dealId);
+    if (idx === -1) return null;
+
+    const prev = { ...this.deals[idx] };
+    const updated = {
+      ...this.deals[idx],
+      status: 'READY_FOR_ACTIVATION' as const,
+      finance_verifier_id: 'ai-finance-agent-01',
+      paid_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    this.deals[idx] = updated;
+    this.saveToStorage();
+
+    this.logAudit('ai-finance-agent-01', 'AI_FINANCE_AUTO_INVOICE_AND_PAYMENT_VERIFIED', 'deals', dealId, prev as unknown as Record<string, unknown>, updated as unknown as Record<string, unknown>);
+    return updated;
+  }
+
+  // 1-CLICK LIVE PRODUCTION ACTIVATION (Super Admin / Developer)
+  public verifyPaymentProof(dealId: string, proofUrl?: string): DealRecord | null {
+    const idx = this.deals.findIndex(d => d.id === dealId);
+    if (idx === -1) return null;
+
+    const prev = { ...this.deals[idx] };
+    const updated = {
+      ...this.deals[idx],
+      client_pipeline_status: 'PAYMENT_VERIFIED' as const,
+      payment_proof_url: proofUrl || 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=300',
+      status: 'READY_FOR_ACTIVATION' as const,
+      paid_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    this.deals[idx] = updated;
+    
+    // Also sync CS Tenant record payment status
+    const csIdx = this.csTenants.findIndex(t => t.deal_id === dealId);
+    if (csIdx !== -1) {
+      this.csTenants[csIdx].client_pipeline_status = 'PAYMENT_VERIFIED';
+      this.csTenants[csIdx].payment_status = 'LUNAS';
+    }
+
+    this.saveToStorage();
+    this.logAudit(this.currentEmployee.id, 'CLIENT_PIPELINE_PAYMENT_VERIFIED', 'deals', dealId, prev as unknown as Record<string, unknown>, updated as unknown as Record<string, unknown>);
+    return updated;
+  }
+
+  public activateLiveProduction1Click(dealId: string, superAdminId: string): DealRecord | null {
+    const idx = this.deals.findIndex(d => d.id === dealId);
+    if (idx === -1) return null;
+
+    const deal = this.deals[idx];
+    const prev = { ...deal };
+    const tenantCode = `PROD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const masterEmail = deal.email || `admin.${deal.prospect_nama?.toLowerCase().replace(/\s+/g, '') || 'client'}@minara.id`;
+    const tempPass = `Minara#${Math.floor(100 + Math.random() * 900)}`;
+
+    const creds = {
+      tenant_code: tenantCode,
+      master_email: masterEmail,
+      temporary_pass: tempPass,
+      activated_at: new Date().toISOString(),
+      activated_by: superAdminId
+    };
+
+    const updated = {
+      ...deal,
+      client_pipeline_status: 'LIVE_PRODUCTION' as const,
+      status: 'ACTIVE_TENANT' as const,
+      reward_eligible_at: new Date().toISOString(),
+      production_credentials: creds,
+      updated_at: new Date().toISOString()
+    };
+
+    this.deals[idx] = updated;
+
+    // Sync to CS Tenant Record
+    const csIdx = this.csTenants.findIndex(t => t.deal_id === dealId);
+    if (csIdx !== -1) {
+      this.csTenants[csIdx].client_pipeline_status = 'LIVE_PRODUCTION';
+      this.csTenants[csIdx].workflow_stage = 'ACTIVE';
+      this.csTenants[csIdx].production_credentials = creds;
+      this.csTenants[csIdx].next_action = 'Sistem Live Production Aktif! Lakukan Review Penggunaan (Hari ke-14)';
+    }
+
+    this.saveToStorage();
+    this.logAudit(superAdminId, 'SUPER_ADMIN_1CLICK_LIVE_PRODUCTION_ACTIVATED', 'deals', dealId, prev as unknown as Record<string, unknown>, updated as unknown as Record<string, unknown>);
+    return updated;
+  }
+
   private createCSTenantFromDeal(deal: DealRecord, prospect?: Prospect) {
     const csTenant: CSTenantRecord = {
       id: `cst-${Date.now()}`,
