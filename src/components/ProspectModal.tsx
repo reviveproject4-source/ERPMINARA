@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Prospect, ProspectStatus, MinaraProduct, VisitProof } from '../types/database';
+import { PILIN_FEATURE_CATALOG } from '../types/database';
 import { systemStore } from '../lib/supabase';
 import { 
   X, Save, CheckCircle2, AlertCircle, 
@@ -57,6 +58,8 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
   const [pilinJenisUsaha, setPilinJenisUsaha] = useState<'Retail' | 'Jasa'>(prospect?.pilin_details?.jenis_usaha || 'Retail');
   const [pilinKeterangan, setPilinKeterangan] = useState(prospect?.pilin_details?.keterangan_kunjungan || prospect?.catatan || '');
   const [pilinAppPembayaran, setPilinAppPembayaran] = useState(prospect?.pilin_details?.app_pembayaran_saat_ini || '');
+  const [selectedPilinFeatures, setSelectedPilinFeatures] = useState<string[]>(prospect?.pilin_details?.selected_features || ['sapaan', 'reminder']);
+  const [pilinDepositSaldo, setPilinDepositSaldo] = useState<number>(prospect?.pilin_details?.deposit_saldo || 100000);
 
   // CeritaAnanda (PAUD & TK) Specific Fields
   const [caNamaYayasan, setCaNamaYayasan] = useState(prospect?.ceritaananda_details?.nama_yayasan || '');
@@ -174,6 +177,8 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
       website: pilinWebsite,
       media_sosial: pilinMediaSosial,
       jenis_usaha: pilinJenisUsaha,
+      selected_features: selectedPilinFeatures,
+      deposit_saldo: pilinDepositSaldo,
       keterangan_kunjungan: pilinKeterangan,
       app_pembayaran_saat_ini: pilinAppPembayaran
     };
@@ -675,14 +680,70 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-gray-300 font-medium mb-1">Keterangan Saat Kunjungan</label>
+                    <label className="block text-gray-300 font-medium mb-1">Catatan Kunjungan Lapangan</label>
                     <input
                       type="text"
                       value={pilinKeterangan}
                       onChange={(e) => setPilinKeterangan(e.target.value)}
-                      placeholder="Catatan hasil obrolan dengan owner..."
+                      placeholder="Catatan obrolan dengan owner..."
                       className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white"
                     />
+                  </div>
+                </div>
+
+                <div>
+                    <label className="block text-amber-300 font-bold mb-1">Initial Saldo PILIN Deposit (Min Rp 100k) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={100000}
+                      step={50000}
+                      value={pilinDepositSaldo}
+                      onChange={(e) => setPilinDepositSaldo(Number(e.target.value))}
+                      className="w-full bg-gray-900 border border-amber-500/40 rounded-xl px-3 py-2 text-amber-300 font-mono font-bold"
+                    />
+                    <span className="text-[10px] text-rose-400 block mt-0.5">⚠️ Deposit Saldo WA Klien $\rightarrow$ Komisi Rp 0 (EXCLUDED).</span>
+                </div>
+
+                {/* PILIN FEATURE SELECTION CHECKLIST (5% RECURRING COMMISSION) */}
+                <div className="bg-gray-900/90 p-3 rounded-xl border border-indigo-500/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-indigo-300 font-bold text-xs flex items-center gap-1.5">
+                      <Layers className="w-4 h-4 text-indigo-400" /> Pilih Fitur Subskripsi PILIN (Komisi Sales 5% Recurring):
+                    </label>
+                    <span className="badge-blue text-[10px] px-2 py-0.5 font-mono">
+                      {selectedPilinFeatures.length} Fitur Terpilih
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+                    {PILIN_FEATURE_CATALOG.map((f) => {
+                      const isSelected = selectedPilinFeatures.includes(f.id);
+                      return (
+                        <button
+                          key={f.id}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedPilinFeatures(selectedPilinFeatures.filter(id => id !== f.id));
+                            } else {
+                              setSelectedPilinFeatures([...selectedPilinFeatures, f.id]);
+                            }
+                          }}
+                          className={`p-2 rounded-lg border text-left transition-all font-mono ${
+                            isSelected 
+                              ? 'bg-indigo-600/30 border-indigo-400 text-white font-bold' 
+                              : 'bg-gray-950 border-white/10 text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="truncate">{f.name}</span>
+                            <span className="text-emerald-400 font-bold">+{f.commission_5pct.toLocaleString('id-ID')}</span>
+                          </div>
+                          <div className="text-[9px] text-gray-400">Rp {f.monthly_price.toLocaleString('id-ID')}/bln</div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

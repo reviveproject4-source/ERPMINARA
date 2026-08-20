@@ -8,7 +8,7 @@ import {
   Users, CheckCircle2, TrendingUp, Clock, 
   Award, ChevronRight, Plus, MapPin, Building, 
   FileCheck, Filter, Calendar, RefreshCw, Layers, ShieldCheck, Mail, UserCheck,
-  AlertTriangle, DollarSign, HelpCircle, GraduationCap, ShoppingBag, Radio, Sparkles
+  AlertTriangle, DollarSign, HelpCircle, Sparkles
 } from 'lucide-react';
 
 interface SalesDashboardProps {
@@ -158,61 +158,75 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
         </div>
       </div>
 
-      {/* 💳 PRODUCT COMMISSION BREAKDOWN BANNER (PERHITUNGAN GAJI DIVISI KEUANGAN) */}
-      <div className="glass-card p-4 border border-indigo-500/30 bg-indigo-500/10 rounded-2xl space-y-3 text-xs">
-        <div className="flex items-center justify-between pb-2 border-b border-white/10">
+      {/* 💳 MINARA V1 AUTHORITATIVE COMMERCIAL BREAKDOWN BANNER */}
+      <div className="glass-card p-4 border-2 border-indigo-500/40 bg-indigo-500/10 rounded-2xl space-y-3 text-xs">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-white/10">
           <div className="flex items-center gap-2 font-bold text-indigo-300">
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>Struktur Komisi Produk untuk Perhitungan Gaji Divisi Keuangan (Minara Bible)</span>
+            <span>MINARA Sales V1 — Commercial Revenue & Commission Report (Exact 5% Rule)</span>
           </div>
-          <span className="badge-blue text-[10px] px-2.5 py-0.5 font-bold font-mono">
-            Total Komisi: Rp {scorecard.total_commission_all_products.toLocaleString('id-ID')}
+          <span className="badge-amber text-[11px] px-3 py-1 font-bold font-mono">
+            Komisi Cair: Rp {scorecard.commissionable_revenue > 0 ? scorecard.total_commission_payable.toLocaleString('id-ID') : (scorecard.total_commission_all_products).toLocaleString('id-ID')}
           </span>
         </div>
 
+        {/* 3 SEPARATE REVENUE RECONCILIATION CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* PILIN Commission */}
-          <div className="bg-gray-900/80 p-3 rounded-xl border border-blue-500/30 space-y-1">
-            <div className="flex justify-between items-center text-blue-300 font-bold">
-              <span className="flex items-center gap-1"><ShoppingBag className="w-3.5 h-3.5" /> PILIN (UMKM BOS)</span>
-              <span className="badge-blue text-[9px] font-mono">Komisi 5%</span>
+          {/* Card 1: Activation Fee (Rp 1M -> Rp 50k Comm) */}
+          <div className="bg-gray-900/90 p-3 rounded-xl border border-emerald-500/30 space-y-1.5">
+            <div className="flex justify-between items-center text-emerald-300 font-bold text-[11px]">
+              <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5" /> 1. Aktivasi Pelanggan Baru</span>
+              <span className="badge-emerald text-[9px]">Komisi 5%</span>
             </div>
-            <div className="text-gray-300 font-mono text-[11px] justify-between flex">
-              <span>Implementasi: Rp {pilinAmount.toLocaleString('id-ID')}</span>
+            <div className="text-gray-300 font-mono text-[11px] space-y-0.5">
+              <div className="flex justify-between"><span>Biaya Aktivasi (Rp 1M):</span><span>Rp {scorecard.pilin_breakdown.activation_fee.toLocaleString('id-ID')}</span></div>
+              <div className="flex justify-between text-gray-400"><span>Target Aktivasi:</span><span>10 Valid Contacts/Day</span></div>
             </div>
-            <div className="text-emerald-400 font-bold font-mono text-xs pt-1 border-t border-white/5 flex justify-between">
-              <span>Komisi Gaji:</span>
-              <span>Rp {(pilinAmount * 0.05).toLocaleString('id-ID')}</span>
-            </div>
-          </div>
-
-          {/* CeritaAnanda Commission */}
-          <div className="bg-gray-900/80 p-3 rounded-xl border border-emerald-500/30 space-y-1">
-            <div className="flex justify-between items-center text-emerald-300 font-bold">
-              <span className="flex items-center gap-1"><GraduationCap className="w-3.5 h-3.5" /> CeritaAnanda (PAUD/TK)</span>
-              <span className="badge-emerald text-[9px] font-mono">Komisi 5%</span>
-            </div>
-            <div className="text-gray-300 font-mono text-[11px] justify-between flex">
-              <span>Implementasi: Rp {caAmount.toLocaleString('id-ID')}</span>
-            </div>
-            <div className="text-emerald-400 font-bold font-mono text-xs pt-1 border-t border-white/5 flex justify-between">
-              <span>Komisi Gaji:</span>
-              <span>Rp {(caAmount * 0.05).toLocaleString('id-ID')}</span>
+            <div className="text-emerald-400 font-bold font-mono text-xs pt-1 border-t border-white/10 flex justify-between">
+              <span>Komisi Aktivasi (5%):</span>
+              <span>Rp {scorecard.pilin_breakdown.activation_commission.toLocaleString('id-ID')}</span>
             </div>
           </div>
 
-          {/* Kabarsantri Commission */}
-          <div className="bg-gray-900/80 p-3 rounded-xl border border-purple-500/30 space-y-1">
-            <div className="flex justify-between items-center text-purple-300 font-bold">
-              <span className="flex items-center gap-1"><Radio className="w-3.5 h-3.5" /> Kabarsantri (Pesantren)</span>
-              <span className="badge-purple text-[9px] font-mono">5% / 2% / 2%</span>
+          {/* Card 2: Feature Subscription & Expansion (5% Recurring) */}
+          <div className="bg-gray-900/90 p-3 rounded-xl border border-blue-500/30 space-y-1.5">
+            <div className="flex justify-between items-center text-blue-300 font-bold text-[11px]">
+              <span className="flex items-center gap-1"><Layers className="w-3.5 h-3.5" /> 2. Fitur & Expansion Sales</span>
+              <span className="badge-blue text-[9px]">5% Recurring</span>
             </div>
             <div className="text-gray-300 font-mono text-[10px] space-y-0.5">
-              <div className="flex justify-between"><span>Aktivasi Bln 1 (5%):</span><span>Rp {(ksInitialAmount * 0.05).toLocaleString('id-ID')}</span></div>
-              <div className="flex justify-between"><span>Langganan Bln 2-6 (2%):</span><span>Rp {(ksSubMonth2_6Amount * 0.02).toLocaleString('id-ID')}</span></div>
-              <div className="flex justify-between"><span>Perpanjangan Bln 7+ (2%):</span><span>Rp {(ksRenewalMonth7Amount * 0.02).toLocaleString('id-ID')}</span></div>
+              <div className="flex justify-between"><span>Subskripsi Fitur:</span><span>Rp {scorecard.pilin_breakdown.feature_subscription_total.toLocaleString('id-ID')}</span></div>
+              <div className="flex justify-between"><span>Expansion Sales:</span><span>Rp {scorecard.pilin_breakdown.expansion_sales_total.toLocaleString('id-ID')}</span></div>
+            </div>
+            <div className="text-blue-300 font-bold font-mono text-xs pt-1 border-t border-white/10 flex justify-between">
+              <span>Komisi Fitur (5%):</span>
+              <span>Rp {(scorecard.pilin_breakdown.feature_commission + scorecard.pilin_breakdown.expansion_commission).toLocaleString('id-ID')}</span>
             </div>
           </div>
+
+          {/* Card 3: Excluded Deposit & WA Usage (0% Commission) */}
+          <div className="bg-gray-900/90 p-3 rounded-xl border border-rose-500/30 space-y-1.5">
+            <div className="flex justify-between items-center text-rose-300 font-bold text-[11px]">
+              <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5 text-rose-400" /> 3. Saldo PILIN & WA Usage</span>
+              <span className="badge-rose text-[9px]">0% Komisi</span>
+            </div>
+            <div className="text-gray-400 font-mono text-[10px] space-y-0.5">
+              <div className="flex justify-between"><span>Saldo Deposit PILIN:</span><span>Rp {scorecard.pilin_breakdown.deposit_collected.toLocaleString('id-ID')}</span></div>
+              <div className="flex justify-between"><span>WA Usage (Rp 350/msg):</span><span>Rp {scorecard.pilin_breakdown.wa_usage_amount.toLocaleString('id-ID')}</span></div>
+            </div>
+            <div className="text-rose-400 font-bold font-mono text-xs pt-1 border-t border-white/10 flex justify-between">
+              <span>Komisi Deposit/WA:</span>
+              <span>Rp 0 (EXCLUDED)</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-[10px] text-gray-300 font-mono bg-gray-950/80 p-2 rounded-xl border border-white/10 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Anti-Ambiguity Rule: Komisi 5% murni dihitung dari Activation + Feature Subscriptions + Expansion. Saldo & WA Usage tidak menambah komisi.</span>
+          </span>
+          <span className="text-amber-300 font-bold">5% Recurring Valid</span>
         </div>
       </div>
 

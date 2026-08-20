@@ -62,6 +62,50 @@ export type ReactivationStage = 'DATABASE' | 'CONTACTED' | 'RESPONDED' | 'DEMO' 
 
 export type AttendanceType = 'MASUK' | 'KELUAR' | 'CHECKIN_FIELD';
 
+// ==========================================
+// MINARA — PILIN COMMERCIAL PRICING CATALOG
+// ==========================================
+
+export interface PilinFeatureCatalogItem {
+  id: string;
+  name: string;
+  category: 'Relationship' | 'Growth' | 'Campaign' | 'Advocacy';
+  monthly_price: number;
+  commission_5pct: number;
+}
+
+export const PILIN_FEATURE_CATALOG: PilinFeatureCatalogItem[] = [
+  // Relationship Features
+  { id: 'sapaan', name: 'Sapaan', category: 'Relationship', monthly_price: 75000, commission_5pct: 3750 },
+  { id: 'reminder', name: 'Reminder', category: 'Relationship', monthly_price: 200000, commission_5pct: 10000 },
+  { id: 'smart_loyalty', name: 'Smart Loyalty', category: 'Relationship', monthly_price: 350000, commission_5pct: 17500 },
+  { id: 'milestone', name: 'Milestone', category: 'Relationship', monthly_price: 110000, commission_5pct: 5500 },
+  { id: 'customer_setia', name: 'Customer Setia', category: 'Relationship', monthly_price: 120000, commission_5pct: 6000 },
+  { id: 'reactivation', name: 'Reactivation', category: 'Relationship', monthly_price: 80000, commission_5pct: 4000 },
+
+  // Growth Features
+  { id: 'hypnoselling', name: 'Hypnoselling', category: 'Growth', monthly_price: 100000, commission_5pct: 5000 },
+  { id: 'happy_hour', name: 'Happy Hour', category: 'Growth', monthly_price: 100000, commission_5pct: 5000 },
+  { id: 'upselling_cross_selling', name: 'Upselling & Cross-selling', category: 'Growth', monthly_price: 150000, commission_5pct: 7500 },
+  { id: 'reminder_stok', name: 'Reminder Stok', category: 'Growth', monthly_price: 125000, commission_5pct: 6250 },
+
+  // Campaign Add-on
+  { id: 'blas_promo', name: 'BLAS / Broadcast Promo', category: 'Campaign', monthly_price: 150000, commission_5pct: 7500 },
+
+  // Advocacy Add-on
+  { id: 'referral', name: 'Referral / Ajak Teman', category: 'Advocacy', monthly_price: 130000, commission_5pct: 6500 },
+];
+
+export const PILIN_COMMERCIAL_RULES = {
+  ACTIVATION_FEE: 1000000,           // Rp 1,000,000 one-time activation
+  ACTIVATION_COMMISSION_5PCT: 50000,  // Rp 50,000 (5% x Rp 1M)
+  MIN_DEPOSIT_SALDO: 100000,         // Minimum Deposit Saldo PILIN
+  DEPOSIT_COMMISSION: 0,             // Rp 0 Commission (EXCLUDED)
+  WA_MESSAGE_PRICE: 350,             // Rp 350 / WhatsApp message
+  WA_USAGE_COMMISSION: 0,            // Rp 0 Commission (EXCLUDED)
+  COMMISSION_RATE: 0.05              // 5% Rate on eligible revenue
+};
+
 // Mandatory Traceable Field Visit Proof
 export interface VisitProof {
   photo_url: string;
@@ -72,15 +116,34 @@ export interface VisitProof {
   is_verified: boolean;
 }
 
-// Product Commission Calculation Structure
+// Product Commission Calculation Structure (MINARA V1 Spec)
 export interface ProductCommissionBreakdown {
   product: MinaraProduct;
   implementation_amount: number;
   subscription_amount: number;
+  expansion_amount?: number;
   implementation_commission_5pct: number;
   subscription_commission_2pct: number;
+  expansion_commission_5pct?: number;
   renewal_commission_2pct: number;
   total_commission: number;
+}
+
+// Full Breakdown for PILIN Sales Performance V1
+export interface PilinCommercialBreakdown {
+  activation_fee: number;               // Rp 1,000,000
+  activation_commission: number;        // 5% = Rp 50,000
+  feature_subscription_total: number;   // Total monthly feature subscriptions
+  feature_commission: number;           // 5% x feature_subscription_total
+  expansion_sales_total: number;        // Total expansion feature purchases
+  expansion_commission: number;         // 5% x expansion_sales_total
+  deposit_collected: number;            // Saldo PILIN (EXCLUDED from commission)
+  deposit_commission: number;           // Rp 0
+  wa_usage_amount: number;              // WA usage revenue (EXCLUDED)
+  wa_usage_commission: number;          // Rp 0
+  total_cash_collected: number;         // Activation + Features + Deposit
+  commissionable_revenue: number;       // Activation + Features + Expansion
+  total_commission_payable: number;     // 5% x commissionable_revenue
 }
 
 // Production Account Credentials for 1-Click Activate
@@ -110,7 +173,7 @@ export interface AttendanceRecord {
   created_at: string;
 }
 
-// Specific Details for PILIN
+// Specific Details for PILIN (BOS UMKM Retail & Jasa)
 export interface PilinDetails {
   nama_toko: string;
   alamat: string;
@@ -120,6 +183,10 @@ export interface PilinDetails {
   website?: string;
   media_sosial?: string;
   jenis_usaha: 'Retail' | 'Jasa';
+  selected_features?: string[];          // IDs from PILIN_FEATURE_CATALOG
+  deposit_saldo?: number;                // Saldo PILIN (Rp 100k+, 0% Commission)
+  wa_messages_sent?: number;             // WA messages (Rp 350/msg, 0% Commission)
+  is_expansion_sale?: boolean;           // True if feature expansion by existing customer
   keterangan_kunjungan?: string;
   app_pembayaran_saat_ini?: string;
 }
@@ -309,6 +376,7 @@ export interface DealRecord {
   kabarsantri_details?: KabarsantriDetails;
   visit_proof?: VisitProof;
   commission_breakdown?: ProductCommissionBreakdown[];
+  pilin_breakdown?: PilinCommercialBreakdown;
   status: DealLifecycleStatus;
   closed_at: string;
   implemented_at?: string;
