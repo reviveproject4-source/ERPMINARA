@@ -146,16 +146,22 @@ class SystemStore {
   }
 
   public addProspect(newP: Omit<Prospect, 'id' | 'created_at' | 'updated_at'>): Prospect {
+    const prospectId = `pr-${Date.now()}`;
+    const productTag = (newP.produk_minat && newP.produk_minat[0]) ? newP.produk_minat[0].toLowerCase() : 'app';
+    const demoUrl = `https://demo.minara.id/trial?id=${prospectId}&product=${productTag}&package=${newP.package_type || 'PRO'}`;
+    
     const prospect: Prospect = {
       ...newP,
-      id: `pr-${Date.now()}`,
+      id: prospectId,
+      demo_url: demoUrl,
+      client_pipeline_status: newP.client_pipeline_status || 'DEMO_TRIAL',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
     this.prospects.unshift(prospect);
     this.saveToStorage();
 
-    this.logAudit(this.currentEmployee.id, 'PROSPECT_CREATED', 'prospects', prospect.id, undefined, prospect as unknown as Record<string, unknown>);
+    this.logAudit(this.currentEmployee.id, 'PROSPECT_CREATED_AUTO_DEMO_READY', 'prospects', prospect.id, undefined, prospect as unknown as Record<string, unknown>);
     return prospect;
   }
 

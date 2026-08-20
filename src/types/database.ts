@@ -197,6 +197,7 @@ export interface Prospect {
   no_hp: string;
   no_wa_usaha?: string;
   email?: string;
+  demo_url?: string;
   wilayah: string;
   sales_owner_id: string;
   sales_owner_name?: string;

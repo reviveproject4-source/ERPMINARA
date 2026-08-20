@@ -507,12 +507,29 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
                   </span>
                 </div>
 
-                {/* Email Display */}
-                {prospect.email && (
-                  <div className="text-[11px] text-cyan-300 flex items-center gap-1.5 font-mono">
-                    <Mail className="w-3 h-3 text-cyan-400" /> {prospect.email}
+                {/* Email & Auto Demo Link Display */}
+                <div className="flex flex-col gap-1 text-[11px] font-mono">
+                  {prospect.email && (
+                    <div className="text-cyan-300 flex items-center gap-1.5">
+                      <Mail className="w-3 h-3 text-cyan-400" /> {prospect.email}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between bg-indigo-950/60 p-1.5 rounded-lg border border-indigo-500/30 text-[10px]">
+                    <span className="text-indigo-300 font-bold flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-amber-400" /> Demo Otomatis Aktif
+                    </span>
+                    <a
+                      href={prospect.demo_url || `https://demo.minara.id/trial?id=${prospect.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-amber-300 hover:text-white font-bold bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40 hover:bg-amber-500/40 transition-all flex items-center gap-1"
+                    >
+                      🖥️ Buka Demo
+                    </a>
                   </div>
-                )}
+                </div>
 
                 {/* Product Interest Badges */}
                 <div className="flex flex-wrap gap-1">
@@ -521,6 +538,11 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
                       {p}
                     </span>
                   ))}
+                  {prospect.package_type && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold font-mono">
+                      {prospect.package_type}
+                    </span>
+                  )}
                 </div>
 
                 {/* Traceability Footer */}

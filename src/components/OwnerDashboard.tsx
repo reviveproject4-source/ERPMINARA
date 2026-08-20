@@ -6,7 +6,7 @@ import type { SalesCriticalZoneRecord } from '../engine/coachingEngine';
 import { 
   DollarSign, ShieldAlert, CheckCircle2, 
   Clock, AlertTriangle, Layers, UserCheck, Lock, Award, Heart, HelpCircle, CheckSquare,
-  MessageSquare, Calendar
+  MessageSquare, Calendar, Radio, ShieldCheck
 } from 'lucide-react';
 
 interface OwnerDashboardProps {
@@ -421,6 +421,92 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
             ))}
           </div>
         )}
+      </div>
+
+      {/* RADAR SUPER ADMIN / DEVELOPER: CLIENT PIPELINE ACTIVATION */}
+      <div className="glass-card p-5 border-2 border-indigo-500/40 bg-indigo-500/10 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <Radio className="w-5 h-5 text-indigo-400 animate-pulse" />
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <span>🚀 Radar Super Admin / Developer: Activation Form Pipeline</span>
+                <span className="badge-purple text-[10px] px-2 py-0.5 font-mono">1-Click Production</span>
+              </h3>
+              <p className="text-xs text-gray-300">
+                Sales Input $\rightarrow$ Demo Otomatis Aktif $\rightarrow$ Klien Bayar $\rightarrow$ Developer 1-Click Aktifkan
+              </p>
+            </div>
+          </div>
+          <span className="text-xs font-mono font-bold text-indigo-300 bg-indigo-900/80 px-3 py-1 rounded-lg border border-indigo-500/30">
+            {prospects.length} Form Activasi Client
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {prospects.map((p) => {
+            const relatedDeal = deals.find(d => d.prospect_id === p.id);
+            const status: 'DEMO_TRIAL' | 'PAYMENT_VERIFIED' | 'LIVE_PRODUCTION' = 
+              relatedDeal?.client_pipeline_status || p.client_pipeline_status || 'DEMO_TRIAL';
+
+            return (
+              <div key={p.id} className="bg-gray-900/90 p-3.5 rounded-xl border border-white/10 space-y-2.5 text-xs">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-bold text-white">{p.nama_lembaga}</h4>
+                    <p className="text-[11px] text-gray-400">PIC: {p.pic} • {p.no_hp}</p>
+                  </div>
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full font-mono ${
+                    status === 'LIVE_PRODUCTION' ? 'badge-emerald' :
+                    status === 'PAYMENT_VERIFIED' ? 'badge-blue' : 'badge-amber'
+                  }`}>
+                    {status === 'LIVE_PRODUCTION' ? '🟢 LIVE_PRODUCTION' :
+                     status === 'PAYMENT_VERIFIED' ? '💳 PAYMENT_VERIFIED' : '🔵 DEMO_TRIAL'}
+                  </span>
+                </div>
+
+                <div className="bg-gray-950 p-2 rounded-lg border border-white/5 space-y-1 text-[10px] font-mono">
+                  <div className="text-indigo-300 flex items-center justify-between">
+                    <span>Paket: <strong className="text-amber-300">{p.package_type || 'PRO'}</strong></span>
+                    <span>Sales: {p.sales_owner_name}</span>
+                  </div>
+                  <div className="text-gray-400 truncate">Email: {p.email || 'N/A'}</div>
+                  <div className="text-emerald-400 font-bold pt-0.5 flex justify-between items-center">
+                    <span>Demo Link:</span>
+                    <a href={p.demo_url || `https://demo.minara.id/trial?id=${p.id}`} target="_blank" rel="noopener noreferrer" className="text-amber-300 underline hover:text-white">
+                      Buka Demo ↗
+                    </a>
+                  </div>
+                </div>
+
+                {/* DEVELOPER / SUPER ADMIN 1-CLICK ACTION */}
+                <div className="pt-1 flex items-center justify-end">
+                  {status === 'LIVE_PRODUCTION' ? (
+                    <span className="text-emerald-400 font-bold text-[10px] flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Production Active & Clean DB
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        let dealId = relatedDeal?.id;
+                        if (!dealId) {
+                          const newDeal = systemStore.createDeal(p.id, p.nilai_peluang || 35000000, p.sales_owner_id, p.sales_owner_name || 'Sales');
+                          dealId = newDeal.id;
+                        }
+                        systemStore.activateLiveProduction1Click(dealId, currentEmployee.id);
+                        onRefresh();
+                        alert(`🚀 DEVELOPER / SUPER ADMIN: Live Production untuk ${p.nama_lembaga} BERHASIL DIAKTIFKAN! Kredensial terbit & Database bersih siap pakai.`);
+                      }}
+                      className="w-full btn-primary text-[11px] py-1.5 px-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 font-extrabold text-white justify-center shadow-lg"
+                    >
+                      ⚡ 1-Click AKTIFKAN LIVE PRODUCTION
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* MULTI-DIVISION VERIFICATION HANDOFF GATEWAY */}
