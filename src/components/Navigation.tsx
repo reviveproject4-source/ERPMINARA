@@ -3,7 +3,7 @@ import type { UserRole } from '../types/database';
 import { systemStore } from '../lib/supabase';
 import { 
   Building2, UserCheck, Shield, Settings, FileText, 
-  Sparkles, ShieldCheck, Activity, Trash2
+  Sparkles, ShieldCheck, Activity, Trash2, Sun, Moon
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -15,6 +15,8 @@ interface NavigationProps {
   onDataCleared: () => void;
   activeTab: 'sales' | 'owner' | 'cs';
   onTabChange: (tab: 'sales' | 'owner' | 'cs') => void;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -25,7 +27,9 @@ export const Navigation: React.FC<NavigationProps> = ({
   onOpenSecurityTest,
   onDataCleared,
   activeTab,
-  onTabChange
+  onTabChange,
+  theme,
+  onToggleTheme
 }) => {
   const handleClearData = () => {
     if (confirm('Apakah Anda yakin ingin mengosongkan seluruh data untuk pengujian manual dari nol?')) {
@@ -139,6 +143,29 @@ export const Navigation: React.FC<NavigationProps> = ({
           >
             <ShieldCheck className="w-4 h-4 text-purple-400" />
             <span className="hidden sm:inline">Test RLS</span>
+          </button>
+
+          {/* Theme Switcher Button (Latar Belakang Putih vs Dark Mode) */}
+          <button
+            onClick={onToggleTheme}
+            title={theme === 'light' ? 'Ganti ke Dark Mode' : 'Ganti ke Latar Belakang Putih (Light Mode)'}
+            className={`p-2.5 rounded-xl border font-bold text-xs transition-all flex items-center gap-1.5 ${
+              theme === 'light'
+                ? 'bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200'
+                : 'bg-indigo-950/80 border-indigo-500/30 text-indigo-300 hover:bg-indigo-900'
+            }`}
+          >
+            {theme === 'light' ? (
+              <>
+                <Sun className="w-4 h-4 text-amber-600" />
+                <span className="hidden md:inline text-[11px]">⚪ Latar Belakang Putih</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4 text-indigo-400" />
+                <span className="hidden md:inline text-[11px]">🌙 Dark Mode</span>
+              </>
+            )}
           </button>
 
           {/* System Settings Button */}

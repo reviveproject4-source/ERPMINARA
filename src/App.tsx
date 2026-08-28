@@ -13,6 +13,11 @@ import { SecurityTestModal } from './components/SecurityTestModal';
 export function App() {
   const [currentRole, setCurrentRole] = useState<UserRole>('sales');
   const [activeTab, setActiveTab] = useState<'sales' | 'owner' | 'cs'>('sales');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   // State Data
   const [prospects, setProspects] = useState<Prospect[]>(() => systemStore.getProspects(undefined, currentRole));
@@ -55,7 +60,11 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-white flex flex-col font-sans">
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
+      theme === 'light' 
+        ? 'light bg-slate-50 text-slate-900' 
+        : 'bg-[#090d16] text-white'
+    }`}>
       
       {/* Navigation Header */}
       <Navigation
@@ -70,6 +79,8 @@ export function App() {
           setActiveTab(tab);
           refreshData();
         }}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Main Content Area */}
