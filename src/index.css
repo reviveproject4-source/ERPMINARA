@@ -258,6 +258,19 @@ body {
   color: #0e7490 !important;
 }
 
+.light .text-gray-300 {
+  color: #334155 !important;
+}
+
+.light .text-gray-400 {
+  color: #475569 !important;
+}
+
+.light label {
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+
 /* Background Overrides for Light Mode */
 .light .bg-\[\#090d16\],
 .light .bg-\[\#0d1322\],

@@ -211,7 +211,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
 
           {/* System Settings Button */}
-          {isDemoMode && (
+          {isDemoMode && (activeTab === 'owner' || activeTab === 'super_admin') && (
             <button
               onClick={onOpenConfig}
               title="System Configurations (No Hard-coded Rules)"
