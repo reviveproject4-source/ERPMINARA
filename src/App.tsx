@@ -10,9 +10,11 @@ import { SystemConfigModal } from './components/SystemConfigModal';
 import { AuditLogModal } from './components/AuditLogModal';
 import { SecurityTestModal } from './components/SecurityTestModal';
 
+import { SuperAdminDashboard } from './components/SuperAdminDashboard';
+
 export function App() {
   const [currentRole, setCurrentRole] = useState<UserRole>('sales');
-  const [activeTab, setActiveTab] = useState<'sales' | 'owner' | 'cs'>('sales');
+  const [activeTab, setActiveTab] = useState<'sales' | 'owner' | 'cs' | 'super_admin'>('sales');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const toggleTheme = () => {
@@ -48,7 +50,8 @@ export function App() {
   const handleRoleChange = (role: UserRole) => {
     setCurrentRole(role);
     systemStore.setCurrentEmployeeRole(role);
-    if (role === 'founder' || role === 'manager') setActiveTab('owner');
+    if (role === 'founder') setActiveTab('super_admin');
+    else if (role === 'manager') setActiveTab('owner');
     else if (role === 'cs') setActiveTab('cs');
     else setActiveTab('sales');
     refreshData();
@@ -111,6 +114,17 @@ export function App() {
             csTenants={csTenants}
             supportTickets={supportTickets}
             reactivationLeads={reactivationLeads}
+            onRefresh={refreshData}
+          />
+        )}
+
+        {activeTab === 'super_admin' && (
+          <SuperAdminDashboard
+            prospects={prospects}
+            proposals={proposals}
+            deals={deals}
+            csTenants={csTenants}
+            tickets={supportTickets}
             onRefresh={refreshData}
           />
         )}

@@ -13,8 +13,8 @@ interface NavigationProps {
   onOpenAudit: () => void;
   onOpenSecurityTest: () => void;
   onDataCleared: () => void;
-  activeTab: 'sales' | 'owner' | 'cs';
-  onTabChange: (tab: 'sales' | 'owner' | 'cs') => void;
+  activeTab: 'sales' | 'owner' | 'cs' | 'super_admin';
+  onTabChange: (tab: 'sales' | 'owner' | 'cs' | 'super_admin') => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
 }
@@ -102,6 +102,20 @@ export const Navigation: React.FC<NavigationProps> = ({
             <Sparkles className="w-3.5 h-3.5" />
             <span>Founder / Owner Omset</span>
           </button>
+
+          {(currentRole === 'founder' || currentRole === 'super_admin') && (
+            <button
+              onClick={() => { onTabChange('super_admin'); }}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                activeTab === 'super_admin' 
+                  ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white border-indigo-400 shadow-md' 
+                  : 'bg-indigo-950/20 text-indigo-300 border-indigo-500/20 hover:text-white'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+              <span>👑 Super Admin</span>
+            </button>
+          )}
         </div>
 
         {/* Role Switcher & System Controls */}
