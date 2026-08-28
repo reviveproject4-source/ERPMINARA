@@ -6,7 +6,7 @@ import type { SalesCriticalZoneRecord } from '../engine/coachingEngine';
 import { 
   DollarSign, ShieldAlert, CheckCircle2, 
   Clock, AlertTriangle, Layers, UserCheck, Lock, Award, Heart, HelpCircle, CheckSquare,
-  MessageSquare, Calendar, Radio, ShieldCheck
+  MessageSquare, Calendar, Radio, ShieldCheck, UserPlus, Users
 } from 'lucide-react';
 
 interface OwnerDashboardProps {
@@ -44,6 +44,117 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
   );
 
   const [coachingStatusMap, setCoachingStatusMap] = useState<Record<string, 'NEEDS_COACHING' | 'COACHING_IN_PROGRESS' | 'RESOLVED'>>({});
+
+  const [activeSubTab, setActiveSubTab] = useState<'performance' | 'employees'>('performance');
+
+  // Employee Form State
+  const [employees, setEmployees] = useState(() => systemStore.getEmployees());
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<any>(null);
+
+  // Form inputs
+  const [empName, setEmpName] = useState('');
+  const [empEmail, setEmpEmail] = useState('');
+  const [empRole, setEmpRole] = useState<any>('sales');
+  const [empPhone, setEmpPhone] = useState('');
+  const [empAlamat, setEmpAlamat] = useState('');
+  const [empSignedDate, setEmpSignedDate] = useState('');
+  const [empResignedDate, setEmpResignedDate] = useState('');
+  const [empStatus, setEmpStatus] = useState<'AKTIF' | 'RESIGNED'>('AKTIF');
+  const [empSpouseName, setEmpSpouseName] = useState('');
+  const [empSpousePhone, setEmpSpousePhone] = useState('');
+  const [empDependents, setEmpDependents] = useState<number>(0);
+  const [empChildAges, setEmpChildAges] = useState<number[]>([]);
+
+  const handleOpenAddEmployee = () => {
+    setEditingEmployee(null);
+    setEmpName('');
+    setEmpEmail('');
+    setEmpRole('sales');
+    setEmpPhone('');
+    setEmpAlamat('');
+    setEmpSignedDate('');
+    setEmpResignedDate('');
+    setEmpStatus('AKTIF');
+    setEmpSpouseName('');
+    setEmpSpousePhone('');
+    setEmpDependents(0);
+    setEmpChildAges([]);
+    setIsEmployeeModalOpen(true);
+  };
+
+  const handleOpenEditEmployee = (emp: any) => {
+    setEditingEmployee(emp);
+    setEmpName(emp.name || '');
+    setEmpEmail(emp.email || '');
+    setEmpRole(emp.role || 'sales');
+    setEmpPhone(emp.phone || '');
+    setEmpAlamat(emp.alamat || '');
+    setEmpSignedDate(emp.signed_contract_date || '');
+    setEmpResignedDate(emp.resigned_date || '');
+    setEmpStatus(emp.status || 'AKTIF');
+    setEmpSpouseName(emp.nama_pasangan || '');
+    setEmpSpousePhone(emp.no_telp_pasangan || '');
+    setEmpDependents(emp.jumlah_tanggungan || 0);
+    setEmpChildAges(emp.usia_anak || []);
+    setIsEmployeeModalOpen(true);
+  };
+
+  const handleSaveEmployee = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingEmployee) {
+      systemStore.updateEmployee(editingEmployee.id, {
+        name: empName,
+        email: empEmail,
+        role: empRole,
+        phone: empPhone,
+        alamat: empAlamat,
+        signed_contract_date: empSignedDate,
+        resigned_date: empStatus === 'RESIGNED' ? empResignedDate : undefined,
+        status: empStatus,
+        nama_pasangan: empSpouseName,
+        no_telp_pasangan: empSpousePhone,
+        jumlah_tanggungan: Number(empDependents),
+        usia_anak: empChildAges
+      });
+    } else {
+      systemStore.addEmployee({
+        tenant_id: 'tenant-minara-01',
+        name: empName,
+        email: empEmail,
+        role: empRole,
+        phone: empPhone,
+        alamat: empAlamat,
+        signed_contract_date: empSignedDate,
+        resigned_date: empStatus === 'RESIGNED' ? empResignedDate : undefined,
+        status: empStatus,
+        nama_pasangan: empSpouseName,
+        no_telp_pasangan: empSpousePhone,
+        jumlah_tanggungan: Number(empDependents),
+        usia_anak: empChildAges
+      });
+    }
+    setEmployees(systemStore.getEmployees());
+    setIsEmployeeModalOpen(false);
+    onRefresh();
+    alert('🎉 Data Pegawai & Keluarga berhasil disimpan!');
+  };
+
+  const handleAddChildAgeInput = () => {
+    setEmpChildAges(prev => [...prev, 0]);
+  };
+
+  const handleChildAgeChange = (index: number, val: number) => {
+    setEmpChildAges(prev => {
+      const copy = [...prev];
+      copy[index] = val;
+      return copy;
+    });
+  };
+
+  const handleRemoveChildAgeInput = (index: number) => {
+    setEmpChildAges(prev => prev.filter((_, i) => i !== index));
+  };
 
   const pendingCSCount = deals.filter(d => d.status === 'CLOSED_PENDING').length;
   const pendingCSAmount = deals.filter(d => d.status === 'CLOSED_PENDING').reduce((acc, d) => acc + d.amount, 0);
@@ -125,6 +236,33 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
           <strong className="text-emerald-400 text-sm">{currentEmployee.name} ({currentEmployee.role.toUpperCase()})</strong>
         </div>
       </div>
+
+      {/* Sub-tab Navigation */}
+      <div className="flex items-center gap-1.5 border-b border-white/10 pb-2 text-xs font-bold">
+        <button
+          onClick={() => setActiveSubTab('performance')}
+          className={`px-4 py-2 rounded-xl transition-all border ${
+            activeSubTab === 'performance'
+              ? 'bg-amber-500 border-amber-400 text-white shadow font-bold'
+              : 'bg-gray-900 border-white/10 text-gray-400 hover:text-white'
+          }`}
+        >
+          📊 Ringkasan Kinerja & Omset
+        </button>
+        <button
+          onClick={() => setActiveSubTab('employees')}
+          className={`px-4 py-2 rounded-xl transition-all border ${
+            activeSubTab === 'employees'
+              ? 'bg-amber-500 border-amber-400 text-white shadow font-bold'
+              : 'bg-gray-900 border-white/10 text-gray-400 hover:text-white'
+          }`}
+        >
+          👥 Tata Kelola Pegawai & HR
+        </button>
+      </div>
+
+      {activeSubTab === 'performance' && (
+        <>
 
       {/* ⚠️ RADAR SALES ZONA KRITIS KINERJA & INTERAKSI COACHING OWNER (PETA SIAPA & KAPAN) */}
       <div className="glass-card p-5 border-2 border-rose-500/40 bg-rose-500/10 space-y-4">
@@ -613,6 +751,253 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Close activeSubTab === 'performance' wrapper */}
+      </>
+      )}
+
+      {/* TAB 2: DATA PEGAWAI & HR */}
+      {activeSubTab === 'employees' && (
+        <div className="space-y-6">
+          {/* Employee Directory Section */}
+          <div className="glass-card p-5 border border-white/10 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 text-amber-400" />
+                  Direktori & Data Pegawai (HR Database)
+                </h3>
+                <p className="text-xs text-gray-400">Kelola informasi pribadi, kontrak, jabatan, dan tanggungan keluarga karyawan.</p>
+              </div>
+              <button
+                onClick={handleOpenAddEmployee}
+                className="btn-primary text-xs py-2 px-4 bg-amber-500 hover:bg-amber-400 font-bold flex items-center gap-1.5"
+              >
+                <UserPlus className="w-4 h-4 text-white" />
+                Tambah Pegawai Baru
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/10 text-gray-400 font-bold">
+                    <th className="py-2.5 px-3">Nama & Kontak</th>
+                    <th className="py-2.5 px-3">Jabatan</th>
+                    <th className="py-2.5 px-3">Kontrak</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3">Pasangan & Telepon</th>
+                    <th className="py-2.5 px-3 text-center">Anak (Usia)</th>
+                    <th className="py-2.5 px-3 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-gray-200">
+                  {employees.map((emp) => (
+                    <tr key={emp.id} className="hover:bg-white/5 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-white">{emp.name}</div>
+                        <div className="text-[10px] text-gray-400">{emp.email} • {emp.phone || '-'}</div>
+                        {emp.alamat && <div className="text-[10px] text-gray-500 italic max-w-xs truncate">📍 {emp.alamat}</div>}
+                      </td>
+                      <td className="py-3 px-3 font-semibold uppercase font-mono tracking-wider text-amber-400">
+                        {emp.role.toUpperCase()}
+                      </td>
+                      <td className="py-3 px-3 font-mono text-[11px]">
+                        <div>Signed: {emp.signed_contract_date || '-'}</div>
+                        {emp.status === 'RESIGNED' && <div className="text-rose-400">Resigned: {emp.resigned_date || '-'}</div>}
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          emp.status === 'RESIGNED' ? 'badge-rose' : 'badge-emerald'
+                        }`}>
+                          {emp.status || 'AKTIF'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3">
+                        {emp.nama_pasangan ? (
+                          <>
+                            <div className="font-bold">{emp.nama_pasangan}</div>
+                            <div className="text-[10px] text-gray-400">📞 {emp.no_telp_pasangan || '-'}</div>
+                          </>
+                        ) : (
+                          <span className="text-gray-500 italic">Belum ada data</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <div className="font-bold text-white">{emp.jumlah_tanggungan || 0} Tanggungan</div>
+                        {emp.usia_anak && emp.usia_anak.length > 0 ? (
+                          <div className="text-[10px] text-gray-400 font-mono">
+                            Usia: {emp.usia_anak.map(age => `${age}th`).join(', ')}
+                          </div>
+                        ) : (
+                          <div className="text-[10px] text-gray-500 italic">Tidak ada anak</div>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <button
+                          onClick={() => handleOpenEditEmployee(emp)}
+                          className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded border border-white/10 text-white transition-colors"
+                        >
+                          Ubah
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Employee Modal */}
+      {isEmployeeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+          <div className="glass-card w-full max-w-2xl bg-[#0d1322] border border-white/15 rounded-2xl shadow-2xl overflow-hidden my-8">
+            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gray-900/60">
+              <h3 className="font-bold text-white text-sm">
+                {editingEmployee ? '📝 Ubah Profil Pegawai' : '👥 Tambah Pegawai Baru'}
+              </h3>
+              <button 
+                onClick={() => setIsEmployeeModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEmployee} className="p-5 space-y-4 text-xs text-slate-900">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-gray-300 mb-1">Nama Lengkap *</label>
+                  <input type="text" required value={empName} onChange={(e) => setEmpName(e.target.value)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1">Email *</label>
+                  <input type="email" required value={empEmail} onChange={(e) => setEmpEmail(e.target.value)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-gray-300 mb-1">Jabatan *</label>
+                  <select value={empRole} onChange={(e) => setEmpRole(e.target.value as any)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white">
+                    <option value="sales">Sales Representative</option>
+                    <option value="cs">CS Agent</option>
+                    <option value="finance">Finance Officer</option>
+                    <option value="manager">Sales Manager</option>
+                    <option value="founder">Founder / Owner</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1">No Kontak / Telepon *</label>
+                  <input type="text" required value={empPhone} onChange={(e) => setEmpPhone(e.target.value)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-1">Alamat Lengkap *</label>
+                <textarea rows={2} required value={empAlamat} onChange={(e) => setEmpAlamat(e.target.value)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-gray-300 mb-1">Signed Contract *</label>
+                  <input type="date" required value={empSignedDate} onChange={(e) => setEmpSignedDate(e.target.value)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono" />
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1">Status Kepegawaian *</label>
+                  <select value={empStatus} onChange={(e) => setEmpStatus(e.target.value as any)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white">
+                    <option value="AKTIF">AKTIF</option>
+                    <option value="RESIGNED">RESIGNED</option>
+                  </select>
+                </div>
+                {empStatus === 'RESIGNED' && (
+                  <div>
+                    <label className="block text-rose-300 mb-1">Resigned Date *</label>
+                    <input type="date" required value={empResignedDate} onChange={(e) => setEmpResignedDate(e.target.value)} className="w-full bg-gray-900 border border-rose-500/30 rounded-xl px-3 py-2 text-white font-mono" />
+                  </div>
+                )}
+              </div>
+
+              {/* Data Pasangan & Kontak Darurat */}
+              <div className="bg-gray-950/60 p-4 rounded-xl border border-white/5 space-y-3">
+                <h4 className="font-bold text-amber-400">Data Keluarga & Kontak Darurat</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Nama Pasangan (Suami/Istri)</label>
+                    <input type="text" value={empSpouseName} onChange={(e) => setEmpSpouseName(e.target.value)} placeholder="Nama pasangan" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">No Telepon Pasangan</label>
+                    <input type="text" value={empSpousePhone} onChange={(e) => setEmpSpousePhone(e.target.value)} placeholder="081xxx" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1">Jumlah Tanggungan Keseluruhan</label>
+                  <input type="number" value={empDependents} onChange={(e) => setEmpDependents(Number(e.target.value))} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono" />
+                </div>
+              </div>
+
+              {/* Usia Anak (Dynamic Array) */}
+              <div className="bg-gray-950/60 p-4 rounded-xl border border-white/5 space-y-3">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-amber-400">Detail Usia Anak</h4>
+                  <button
+                    type="button"
+                    onClick={handleAddChildAgeInput}
+                    className="px-2.5 py-1 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 rounded border border-amber-500/30 font-bold text-[10px]"
+                  >
+                    + Tambah Usia Anak
+                  </button>
+                </div>
+
+                {empChildAges.length === 0 ? (
+                  <p className="text-[11px] text-gray-500 italic">Belum ada detail data anak.</p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2">
+                    {empChildAges.map((age, idx) => (
+                      <div key={idx} className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          value={age}
+                          min={0}
+                          onChange={(e) => handleChildAgeChange(idx, Number(e.target.value))}
+                          placeholder={`Anak ke-${idx + 1}`}
+                          className="w-full bg-gray-900 border border-white/10 rounded-lg px-2.5 py-1 text-white font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveChildAgeInput(idx)}
+                          className="p-1 text-rose-400 hover:text-white rounded hover:bg-rose-500/20"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsEmployeeModalOpen(false)}
+                  className="btn-secondary py-2 px-4"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary py-2 px-4 bg-amber-500 hover:bg-amber-400 font-bold text-white"
+                >
+                  {editingEmployee ? 'Simpan Perubahan' : 'Tambah Pegawai'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

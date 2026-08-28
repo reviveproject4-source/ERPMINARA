@@ -37,6 +37,9 @@ class SystemStore {
 
   private loadFromStorage() {
     try {
+      const savedEmployees = localStorage.getItem('minara_employees');
+      if (savedEmployees) this.employees = JSON.parse(savedEmployees);
+
       const savedProspects = localStorage.getItem('minara_prospects');
       if (savedProspects) this.prospects = JSON.parse(savedProspects);
 
@@ -61,6 +64,7 @@ class SystemStore {
 
   private saveToStorage() {
     try {
+      localStorage.setItem('minara_employees', JSON.stringify(this.employees));
       localStorage.setItem('minara_prospects', JSON.stringify(this.prospects));
       localStorage.setItem('minara_deals', JSON.stringify(this.deals));
       localStorage.setItem('minara_cs_tenants', JSON.stringify(this.csTenants));
@@ -73,6 +77,7 @@ class SystemStore {
   }
 
   public clearAllData() {
+    this.employees = [...INITIAL_EMPLOYEES];
     this.prospects = [];
     this.activities = [];
     this.discoveries = [];
@@ -86,6 +91,7 @@ class SystemStore {
     this.auditLogs = [];
     
     try {
+      localStorage.removeItem('minara_employees');
       localStorage.removeItem('minara_prospects');
       localStorage.removeItem('minara_deals');
       localStorage.removeItem('minara_cs_tenants');
@@ -99,6 +105,29 @@ class SystemStore {
 
   public getEmployees(): Employee[] { return this.employees; }
   
+  public addEmployee(emp: Omit<Employee, 'id'>): Employee {
+    const newEmp: Employee = {
+      ...emp,
+      id: `emp-${Date.now()}`
+    };
+    this.employees.push(newEmp);
+    this.saveToStorage();
+    this.logAudit(this.currentEmployee.id, 'EMPLOYEE_CREATED', 'employees', newEmp.id, undefined, newEmp as unknown as Record<string, unknown>);
+    return newEmp;
+  }
+
+  public updateEmployee(id: string, updates: Partial<Employee>): Employee | null {
+    const idx = this.employees.findIndex(e => e.id === id);
+    if (idx === -1) return null;
+
+    const prev = { ...this.employees[idx] };
+    const updated = { ...this.employees[idx], ...updates };
+    this.employees[idx] = updated;
+    this.saveToStorage();
+    this.logAudit(this.currentEmployee.id, 'EMPLOYEE_UPDATED', 'employees', id, prev as unknown as Record<string, unknown>, updated as unknown as Record<string, unknown>);
+    return updated;
+  }
+
   public getCurrentEmployee(): Employee { return this.currentEmployee; }
   
   public setCurrentEmployeeRole(role: UserRole): Employee {

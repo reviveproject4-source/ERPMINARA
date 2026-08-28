@@ -277,6 +277,16 @@ export interface Employee {
   sales_level?: SalesLevel;
   avatar?: string;
   phone?: string;
+
+  // New HR Profile Fields
+  alamat?: string;
+  signed_contract_date?: string;
+  resigned_date?: string;
+  status?: 'AKTIF' | 'RESIGNED';
+  nama_pasangan?: string;
+  no_telp_pasangan?: string;
+  jumlah_tanggungan?: number;
+  usia_anak?: number[]; // Array of ages of each child
 }
 
 export interface KPITargetsConfig {
