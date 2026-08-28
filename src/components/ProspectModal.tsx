@@ -271,6 +271,11 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
       mainWilayah = ksAlamat;
     }
 
+    if (status === 'MENOLAK' && !rejectionReason.trim()) {
+      alert('⚠️ Gagal Menyimpan: Silakan masukkan Alasan Klien Menolak.');
+      return;
+    }
+
     if (!mainDisplayName || !mainPic || !mainPhone) {
       alert('Mohon isi nama toko/lembaga, PIC/Owner, dan nomor kontak!');
       return;
@@ -629,7 +634,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     />
                     <input
                       type="text"
-                      required
                       value={photoUrl}
                       onChange={(e) => setPhotoUrl(e.target.value)}
                       placeholder="URL / Capture Foto Kunjungan..."
@@ -677,7 +681,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                 </label>
                 <input
                   type="email"
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@lembaga.com"
@@ -691,7 +694,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                 </label>
                 <input
                   type="text"
-                  required
                   value={noWaUsaha}
                   onChange={(e) => setNoWaUsaha(e.target.value)}
                   placeholder="0812xxxxxxxx (WA Usaha)"
@@ -831,7 +833,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Nama Toko / Usaha *</label>
                     <input
                       type="text"
-                      required
                       value={pilinNamaToko}
                       onChange={(e) => setPilinNamaToko(e.target.value)}
                       placeholder="Contoh: Toko Berkah Retail / Salon Jasa"
@@ -843,7 +844,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Owner / Pemilik Toko *</label>
                     <input
                       type="text"
-                      required
                       value={pilinOwner}
                       onChange={(e) => setPilinOwner(e.target.value)}
                       placeholder="Nama Owner"
@@ -869,7 +869,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">No. WhatsApp Admin Toko *</label>
                     <input
                       type="text"
-                      required
                       value={pilinNoAdmin}
                       onChange={(e) => setPilinNoAdmin(e.target.value)}
                       placeholder="0812xxxxxxxx"
@@ -882,7 +881,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                   <label className="block text-gray-300 font-medium mb-1">Alamat Toko Lengkap (Terverifikasi GPS) *</label>
                   <input
                     type="text"
-                    required
                     value={pilinAlamat}
                     onChange={(e) => setPilinAlamat(e.target.value)}
                     placeholder="Jl. Raya No. 123, Kota..."
@@ -942,7 +940,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-amber-300 font-bold mb-1">Initial Saldo PILIN Deposit (Min Rp 100k) *</label>
                     <input
                       type="number"
-                      required
                       min={100000}
                       step={50000}
                       value={pilinDepositSaldo}
@@ -1008,7 +1005,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Nama Yayasan *</label>
                     <input
                       type="text"
-                      required
                       value={caNamaYayasan}
                       onChange={(e) => setCaNamaYayasan(e.target.value)}
                       placeholder="Yayasan Pendidikan Islam..."
@@ -1020,7 +1016,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Nama TK / PAUD *</label>
                     <input
                       type="text"
-                      required
                       value={caNamaTK}
                       onChange={(e) => setCaNamaTK(e.target.value)}
                       placeholder="TK Islam Terpadu An-Nahl"
@@ -1034,7 +1029,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Penanggung Jawab / PIC *</label>
                     <input
                       type="text"
-                      required
                       value={caPic}
                       onChange={(e) => setCaPic(e.target.value)}
                       placeholder="Kepala Sekolah / Ketua Yayasan"
@@ -1046,7 +1040,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">No. Kontak / WA *</label>
                     <input
                       type="text"
-                      required
                       value={caNoKontak}
                       onChange={(e) => setCaNoKontak(e.target.value)}
                       placeholder="0812xxxxxxxx"
@@ -1059,7 +1052,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                   <label className="block text-gray-300 font-medium mb-1">Alamat Lengkap PAUD/TK *</label>
                   <input
                     type="text"
-                    required
                     value={caAlamat}
                     onChange={(e) => setCaAlamat(e.target.value)}
                     placeholder="Alamat sekolah..."
@@ -1072,7 +1064,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Jumlah Guru *</label>
                     <input
                       type="number"
-                      required
                       value={caJumlahGuru}
                       onChange={(e) => setCaJumlahGuru(Number(e.target.value))}
                       className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white"
@@ -1083,7 +1074,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Jumlah Murid / Santri PAUD *</label>
                     <input
                       type="number"
-                      required
                       value={caJumlahMurid}
                       onChange={(e) => setCaJumlahMurid(Number(e.target.value))}
                       className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-bold"
@@ -1105,7 +1095,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Nama Pesantren / Lembaga *</label>
                     <input
                       type="text"
-                      required
                       value={pilinNamaToko || caNamaTK}
                       onChange={(e) => { setPilinNamaToko(e.target.value); setCaNamaTK(e.target.value); }}
                       placeholder="Pondok Pesantren Al-Hidayah"
@@ -1117,7 +1106,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">PIC / Pengasuh *</label>
                     <input
                       type="text"
-                      required
                       value={pilinOwner || caPic}
                       onChange={(e) => { setPilinOwner(e.target.value); setCaPic(e.target.value); }}
                       placeholder="Kiai Haji Mansur"
@@ -1131,7 +1119,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">No. WhatsApp *</label>
                     <input
                       type="text"
-                      required
                       value={pilinNoAdmin || caNoKontak}
                       onChange={(e) => { setPilinNoAdmin(e.target.value); setCaNoKontak(e.target.value); }}
                       placeholder="0812xxxxxxxx"
@@ -1143,7 +1130,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                     <label className="block text-gray-300 font-medium mb-1">Wilayah / Kota *</label>
                     <input
                       type="text"
-                      required
                       value={pilinAlamat || caAlamat}
                       onChange={(e) => { setPilinAlamat(e.target.value); setCaAlamat(e.target.value); }}
                       placeholder="Bogor, Jawa Barat"
@@ -1224,7 +1210,6 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
                 </label>
                 <textarea
                   rows={2}
-                  required
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   placeholder="Masukkan umpan balik penolakan klien..."
