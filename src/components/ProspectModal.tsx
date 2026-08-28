@@ -186,21 +186,89 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
   const handleSubmitInfo = (e: React.FormEvent) => {
     e.preventDefault();
 
-    let mainDisplayName = pilinNamaToko || caNamaTK || 'Usaha / Lembaga';
-    let mainPic = pilinOwner || caPic || 'Owner';
-    let mainPhone = pilinNoAdmin || caNoKontak || '081200000000';
-    let mainWilayah = pilinAlamat || caAlamat || 'Kota';
+    let mainDisplayName = '';
+    let mainPic = '';
+    let mainPhone = '';
+    let mainWilayah = '';
+
+    // Validate general contact fields first
+    if (!email.trim()) {
+      alert('⚠️ Gagal Menyimpan: Alamat Email Lembaga / Usaha wajib diisi.');
+      return;
+    }
+    if (!noWaUsaha.trim()) {
+      alert('⚠️ Gagal Menyimpan: No. WhatsApp Resmi Usaha wajib diisi.');
+      return;
+    }
 
     if (activeProductForm === 'CeritaAnanda') {
+      if (!caNamaTK.trim()) {
+        alert('⚠️ Gagal Menyimpan: Nama TK / PAUD CeritaAnanda wajib diisi.');
+        return;
+      }
+      if (!caPic.trim()) {
+        alert('⚠️ Gagal Menyimpan: Nama PIC/Penganggung Jawab CeritaAnanda wajib diisi.');
+        return;
+      }
+      if (!caNoKontak.trim()) {
+        alert('⚠️ Gagal Menyimpan: No. WhatsApp/Kontak CeritaAnanda wajib diisi.');
+        return;
+      }
+      if (!caAlamat.trim()) {
+        alert('⚠️ Gagal Menyimpan: Alamat Lengkap CeritaAnanda wajib diisi.');
+        return;
+      }
       mainDisplayName = caNamaTK;
       mainPic = caPic;
       mainPhone = caNoKontak;
       mainWilayah = caAlamat;
     } else if (activeProductForm === 'Pilin') {
+      if (!pilinNamaToko.trim()) {
+        alert('⚠️ Gagal Menyimpan: Nama Toko / Usaha PILIN wajib diisi.');
+        return;
+      }
+      if (!pilinOwner.trim()) {
+        alert('⚠️ Gagal Menyimpan: Nama Owner/Pemilik PILIN wajib diisi.');
+        return;
+      }
+      if (!pilinNoAdmin.trim()) {
+        alert('⚠️ Gagal Menyimpan: No. WhatsApp Admin Toko PILIN wajib diisi.');
+        return;
+      }
+      if (!pilinAlamat.trim()) {
+        alert('⚠️ Gagal Menyimpan: Alamat Lengkap Toko PILIN wajib diisi.');
+        return;
+      }
       mainDisplayName = pilinNamaToko;
       mainPic = pilinOwner;
       mainPhone = pilinNoAdmin;
       mainWilayah = pilinAlamat;
+    } else if (activeProductForm === 'Kabarsantri') {
+      const ksNama = pilinNamaToko || caNamaTK;
+      const ksPic = pilinOwner || caPic;
+      const ksPhone = pilinNoAdmin || caNoKontak;
+      const ksAlamat = pilinAlamat || caAlamat;
+
+      if (!ksNama.trim()) {
+        alert('⚠️ Gagal Menyimpan: Nama Pesantren / Lembaga Kabarsantri wajib diisi.');
+        return;
+      }
+      if (!ksPic.trim()) {
+        alert('⚠️ Gagal Menyimpan: Nama PIC / Pengasuh Kabarsantri wajib diisi.');
+        return;
+      }
+      if (!ksPhone.trim()) {
+        alert('⚠️ Gagal Menyimpan: No. WhatsApp Kabarsantri wajib diisi.');
+        return;
+      }
+      if (!ksAlamat.trim()) {
+        alert('⚠️ Gagal Menyimpan: Wilayah / Kota Kabarsantri wajib diisi.');
+        return;
+      }
+      mainDisplayName = ksNama;
+      mainPic = ksPic;
+      mainPhone = ksPhone;
+      mainWilayah = ksAlamat;
     }
 
     if (!mainDisplayName || !mainPic || !mainPhone) {
@@ -343,6 +411,7 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
       });
     }
 
+    alert('🎉 Data Calon Klien berhasil disimpan ke sistem!');
     onSaved();
     onClose();
   };
