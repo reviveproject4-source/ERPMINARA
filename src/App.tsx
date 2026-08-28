@@ -16,12 +16,20 @@ export function App() {
   const [currentRole, setCurrentRole] = useState<UserRole>('sales');
   const [activeTab, setActiveTab] = useState<'sales' | 'owner' | 'cs' | 'super_admin'>('sales');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isDemoMode, setIsDemoMode] = useState(true);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  const toggleDemoMode = () => {
+    setIsDemoMode(prev => !prev);
+  };
+
   // State Data
+  const [employees, setEmployees] = useState(() => systemStore.getEmployees());
+  const [currentEmployee, setCurrentEmployee] = useState(() => systemStore.getCurrentEmployee());
+
   const [prospects, setProspects] = useState<Prospect[]>(() => systemStore.getProspects(undefined, currentRole));
   const [proposals, setProposals] = useState(() => systemStore.getProposals());
   const [deals, setDeals] = useState(() => systemStore.getDeals());
@@ -38,7 +46,9 @@ export function App() {
   const [isSecurityTestModalOpen, setIsSecurityTestModalOpen] = useState(false);
 
   const refreshData = () => {
-    setProspects(systemStore.getProspects(undefined, currentRole));
+    setEmployees(systemStore.getEmployees());
+    setCurrentEmployee(systemStore.getCurrentEmployee());
+    setProspects(systemStore.getProspects(undefined, systemStore.getCurrentEmployee().role));
     setProposals(systemStore.getProposals());
     setDeals(systemStore.getDeals());
     setCsTenants(systemStore.getCSTenants());
@@ -47,9 +57,21 @@ export function App() {
     setAuditLogs(systemStore.getAuditLogs());
   };
 
+  const handleEmployeeChange = (empId: string) => {
+    const emp = systemStore.setCurrentEmployeeId(empId);
+    setCurrentEmployee(emp);
+    setCurrentRole(emp.role);
+    if (emp.role === 'founder') setActiveTab('super_admin');
+    else if (emp.role === 'manager') setActiveTab('owner');
+    else if (emp.role === 'cs') setActiveTab('cs');
+    else setActiveTab('sales');
+    refreshData();
+  };
+
   const handleRoleChange = (role: UserRole) => {
+    const emp = systemStore.setCurrentEmployeeRole(role);
+    setCurrentEmployee(emp);
     setCurrentRole(role);
-    systemStore.setCurrentEmployeeRole(role);
     if (role === 'founder') setActiveTab('super_admin');
     else if (role === 'manager') setActiveTab('owner');
     else if (role === 'cs') setActiveTab('cs');
@@ -71,7 +93,8 @@ export function App() {
       
       {/* Navigation Header */}
       <Navigation
-        currentRole={currentRole}
+        currentEmployee={currentEmployee}
+        onEmployeeChange={handleEmployeeChange}
         onRoleChange={handleRoleChange}
         onOpenConfig={() => setIsConfigModalOpen(true)}
         onOpenAudit={() => setIsAuditModalOpen(true)}
@@ -84,6 +107,9 @@ export function App() {
         }}
         theme={theme}
         onToggleTheme={toggleTheme}
+        employees={employees}
+        isDemoMode={isDemoMode}
+        onToggleDemoMode={toggleDemoMode}
       />
 
       {/* Main Content Area */}
@@ -96,6 +122,7 @@ export function App() {
             onOpenProspectModal={handleOpenProspectModal}
             onRefresh={refreshData}
             onRoleChange={handleRoleChange}
+            isDemoMode={isDemoMode}
           />
         )}
 

@@ -69,19 +69,19 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
   const handle1ClickActivate = (dealId: string) => {
     systemStore.activateLiveProduction1Click(dealId, currentEmployee.id);
     onRefresh();
-    alert('🚀 SUPER ADMIN: 1-Click Live Production Aktif! Database dibersihkan & kredensial master telah diterbitkan!');
+    alert('Live Production Aktif! Database dibersihkan & kredensial master telah diterbitkan.');
   };
 
   const handleVerifyAttendance = (attId: string) => {
     systemStore.verifyAttendanceFinance(attId);
     setAttendanceRecords(systemStore.getAttendanceRecords());
     onRefresh();
-    alert('✅ Presensi Sales Terverifikasi Finance! Siap dicairkan untuk Gaji / Uang Harian.');
+    alert('Presensi Sales Terverifikasi Finance! Kehadiran disetujui.');
   };
 
   const handleSavePricingConfig = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('⚙️ CONFIG SAVED: Aturan harga & komisi global berhasil diperbarui tanpa hardcoding!');
+    alert('Pengaturan harga & komisi global berhasil diperbarui.');
   };
 
   return (
@@ -92,15 +92,15 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
         <div>
           <h2 className="text-lg font-bold text-indigo-800 flex items-center gap-2">
             <ShieldCheck className="w-6 h-6 text-indigo-600" />
-            Super Admin & Founder Executive Command Center
+            Executive Command Center
           </h2>
           <p className="text-xs text-slate-600">
-            Akses tingkat tinggi untuk manajemen multi-SaaS, monitoring billing AI, 1-Click production activation, dan tata kelola kebijakan bisnis.
+            Akses eksekutif untuk manajemen operasional multi-SaaS, monitoring billing AI, aktivasi layanan, dan konfigurasi kebijakan bisnis.
           </p>
         </div>
         <div className="flex items-center gap-2 bg-white/80 p-2 rounded-xl border border-slate-200 text-xs">
           <Database className="w-4 h-4 text-emerald-600" />
-          <span className="font-mono text-emerald-800 font-bold">DB: Connected (RLS Active)</span>
+          <span className="font-mono text-emerald-800 font-bold">DB: Connected</span>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             activeSubTab === 'command' ? 'bg-indigo-600 text-white border-indigo-400 shadow' : 'bg-slate-100 text-slate-600 hover:text-indigo-600'
           }`}
         >
-          👑 Executive Command
+          💼 Executive Dashboard
         </button>
         <button
           onClick={() => setActiveSubTab('activations')}
@@ -120,7 +120,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             activeSubTab === 'activations' ? 'bg-indigo-600 text-white border-indigo-400 shadow' : 'bg-slate-100 text-slate-600 hover:text-indigo-600'
           }`}
         >
-          🚀 1-Click Activation Radar
+          🚀 Aktivasi Layanan
           {verifiedDeals.length > 0 && (
             <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold animate-pulse">
               {verifiedDeals.length}

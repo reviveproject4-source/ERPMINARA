@@ -1,13 +1,15 @@
 import React from 'react';
-import type { UserRole } from '../types/database';
 import { systemStore } from '../lib/supabase';
 import { 
   Building2, UserCheck, Shield, Settings, FileText, 
   Sparkles, ShieldCheck, Activity, Trash2, Sun, Moon
 } from 'lucide-react';
 
+import type { UserRole, Employee } from '../types/database';
+
 interface NavigationProps {
-  currentRole: UserRole;
+  currentEmployee: Employee;
+  onEmployeeChange: (id: string) => void;
   onRoleChange: (role: UserRole) => void;
   onOpenConfig: () => void;
   onOpenAudit: () => void;
@@ -17,10 +19,14 @@ interface NavigationProps {
   onTabChange: (tab: 'sales' | 'owner' | 'cs' | 'super_admin') => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
+  employees: Employee[];
+  isDemoMode: boolean;
+  onToggleDemoMode: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
-  currentRole,
+  currentEmployee,
+  onEmployeeChange,
   onRoleChange,
   onOpenConfig,
   onOpenAudit,
@@ -29,7 +35,10 @@ export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
   onTabChange,
   theme,
-  onToggleTheme
+  onToggleTheme,
+  employees,
+  isDemoMode,
+  onToggleDemoMode
 }) => {
   const handleClearData = () => {
     if (confirm('Apakah Anda yakin ingin mengosongkan seluruh data untuk pengujian manual dari nol?')) {
@@ -68,7 +77,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         {/* Primary View Selector Tabs */}
         <div className="flex items-center gap-1 bg-gray-900/80 p-1.5 rounded-xl border border-white/10 self-start md:self-auto">
           <button
-            onClick={() => { onTabChange('sales'); if (currentRole !== 'sales') onRoleChange('sales'); }}
+            onClick={() => { onTabChange('sales'); if (currentEmployee.role !== 'sales') onRoleChange('sales'); }}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'sales' 
                 ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md' 
@@ -80,7 +89,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
 
           <button
-            onClick={() => { onTabChange('cs'); if (currentRole !== 'cs') onRoleChange('cs'); }}
+            onClick={() => { onTabChange('cs'); if (currentEmployee.role !== 'cs') onRoleChange('cs'); }}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'cs' 
                 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md' 
@@ -92,7 +101,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
 
           <button
-            onClick={() => { onTabChange('owner'); if (currentRole !== 'founder') onRoleChange('founder'); }}
+            onClick={() => { onTabChange('owner'); if (currentEmployee.role !== 'founder') onRoleChange('founder'); }}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'owner' 
                 ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md' 
@@ -103,7 +112,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             <span>Founder / Owner Omset</span>
           </button>
 
-          {(currentRole === 'founder' || currentRole === 'super_admin') && (
+          {(currentEmployee.role === 'founder' || currentEmployee.role === 'super_admin') && (
             <button
               onClick={() => { onTabChange('super_admin'); }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
@@ -121,43 +130,62 @@ export const Navigation: React.FC<NavigationProps> = ({
         {/* Role Switcher & System Controls */}
         <div className="flex items-center gap-2">
           {/* Active Employee Role Selector */}
-          <div className="relative flex items-center gap-2 bg-gray-900/90 border border-white/10 px-3 py-1.5 rounded-xl">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-gray-400 font-medium">Peran Aktif:</span>
-              <select
-                value={currentRole}
-                onChange={(e) => onRoleChange(e.target.value as UserRole)}
-                className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer pr-2"
-              >
-                <option value="sales" className="bg-gray-900 text-white">Budi Santoso (Sales Rep)</option>
-                <option value="cs" className="bg-gray-900 text-white">Siti Rahma (CS Agent)</option>
-                <option value="finance" className="bg-gray-900 text-white">Ahmad Finance (Finance)</option>
-                <option value="manager" className="bg-gray-900 text-white">Ustadz Ridwan (Sales Manager)</option>
-                <option value="founder" className="bg-gray-900 text-white">Minara Founder (Owner)</option>
-              </select>
+          {isDemoMode && (
+            <div className="relative flex items-center gap-2 bg-gray-900/90 border border-white/10 px-3 py-1.5 rounded-xl">
+              <Shield className="w-4 h-4 text-emerald-400" />
+              <div className="flex flex-col">
+                <span className="text-[10px] text-gray-400 font-medium">Pengguna Aktif:</span>
+                <select
+                  value={currentEmployee.id}
+                  onChange={(e) => onEmployeeChange(e.target.value)}
+                  className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer pr-2"
+                >
+                  {employees.map(emp => (
+                    <option key={emp.id} value={emp.id} className="bg-gray-900 text-white">
+                      {emp.name} ({emp.role.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Demo Mode Toggle */}
+          <button
+            onClick={onToggleDemoMode}
+            title={isDemoMode ? 'Matikan Mode Demo (Tampilan Produksi Bersih)' : 'Aktifkan Mode Demo (Alat Pengujian)'}
+            className={`p-2.5 rounded-xl border text-xs transition-all flex items-center gap-1.5 font-bold ${
+              isDemoMode
+                ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-300 hover:bg-emerald-900'
+                : 'bg-gray-900 border-white/10 text-gray-400 hover:text-white'
+            }`}
+          >
+            <span>{isDemoMode ? '🛠️ Mode Demo: ON' : '💼 Mode Pro: ON'}</span>
+          </button>
 
           {/* Clear All Data Button for Manual Testing */}
-          <button
-            onClick={handleClearData}
-            title="Kosongkan Semua Data untuk Pengujian Manual"
-            className="p-2.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-500/30 text-rose-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-          >
-            <Trash2 className="w-4 h-4 text-rose-400" />
-            <span className="hidden sm:inline">Kosongkan Data</span>
-          </button>
+          {isDemoMode && (
+            <button
+              onClick={handleClearData}
+              title="Kosongkan Semua Data untuk Pengujian Manual"
+              className="p-2.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-500/30 text-rose-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+            >
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span className="hidden sm:inline">Kosongkan Data</span>
+            </button>
+          )}
 
           {/* Security Test Suite Button */}
-          <button
-            onClick={onOpenSecurityTest}
-            title="Role-Based Security & Handoff Test Suite"
-            className="p-2.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/30 text-purple-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-          >
-            <ShieldCheck className="w-4 h-4 text-purple-400" />
-            <span className="hidden sm:inline">Test RLS</span>
-          </button>
+          {isDemoMode && (
+            <button
+              onClick={onOpenSecurityTest}
+              title="Role-Based Security & Handoff Test Suite"
+              className="p-2.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/30 text-purple-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+            >
+              <ShieldCheck className="w-4 h-4 text-purple-400" />
+              <span className="hidden sm:inline">Test RLS</span>
+            </button>
+          )}
 
           {/* Theme Switcher Button (Latar Belakang Putih vs Dark Mode) */}
           <button
@@ -183,13 +211,15 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
 
           {/* System Settings Button */}
-          <button
-            onClick={onOpenConfig}
-            title="System Configurations (No Hard-coded Rules)"
-            className="p-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 border border-white/10 text-gray-300 hover:text-emerald-400 transition-colors"
-          >
-            <Settings className="w-4 h-4" />
-          </button>
+          {isDemoMode && (
+            <button
+              onClick={onOpenConfig}
+              title="System Configurations (No Hard-coded Rules)"
+              className="p-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 border border-white/10 text-gray-300 hover:text-emerald-400 transition-colors"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          )}
 
           {/* Audit Log Button */}
           <button

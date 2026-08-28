@@ -18,6 +18,7 @@ interface SalesDashboardProps {
   onOpenProspectModal: (prospect?: Prospect) => void;
   onRefresh: () => void;
   onRoleChange: (role: any) => void;
+  isDemoMode: boolean;
 }
 
 export const SalesDashboard: React.FC<SalesDashboardProps> = ({
@@ -26,7 +27,8 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
   deals,
   onOpenProspectModal,
   onRefresh,
-  onRoleChange
+  onRoleChange,
+  isDemoMode
 }) => {
   const currentSales = systemStore.getCurrentEmployee();
   const [salesLevel, setSalesLevel] = useState<SalesLevel>(currentSales.sales_level || 'MID_LEVEL');
@@ -96,12 +98,12 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-white">{currentSales.name}</h2>
-              <span className="badge-emerald text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> Verifikasi GPS, Foto, & Presensi
+              <span className="badge-emerald text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
+                <UserCheck className="w-3.5 h-3.5" /> Presensi Aktif
               </span>
             </div>
             <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-2 font-medium">
-              <span>Kanvasing General: <strong className="text-indigo-400">Pilin • CeritaAnanda • Kabarsantri</strong></span>
+              <span>Layanan Aktif: <strong className="text-indigo-400">Pilin, CeritaAnanda, Kabarsantri</strong></span>
               <span>•</span>
               <span>Total Poin: <strong className="text-amber-400">{scorecard.totalPoints} PTS</strong></span>
             </p>
@@ -142,22 +144,24 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
             <span>📍 Presensi Sales</span>
           </button>
 
-          <button 
-            onClick={() => {
-              const nextRole = prompt("Pilih peran untuk berganti:\n1. Sales Rep (sales)\n2. CS Agent (cs)\n3. Finance (finance)\n4. Sales Manager (manager)\n5. Founder / Owner (founder)\n\nMasukkan kode dalam kurung (misal: founder):", "founder");
-              if (nextRole) {
-                if (['sales', 'cs', 'finance', 'manager', 'founder'].includes(nextRole)) {
-                  onRoleChange(nextRole as any);
-                } else {
-                  alert("Kode peran tidak valid!");
+          {isDemoMode && (
+            <button 
+              onClick={() => {
+                const nextRole = prompt("Pilih peran untuk berganti:\n1. Sales Rep (sales)\n2. CS Agent (cs)\n3. Finance (finance)\n4. Sales Manager (manager)\n5. Founder / Owner (founder)\n\nMasukkan kode dalam kurung (misal: founder):", "founder");
+                if (nextRole) {
+                  if (['sales', 'cs', 'finance', 'manager', 'founder'].includes(nextRole)) {
+                    onRoleChange(nextRole as any);
+                  } else {
+                    alert("Kode peran tidak valid!");
+                  }
                 }
-              }
-            }}
-            title="Ganti Peran / Logout"
-            className="btn-secondary py-2 px-3 text-xs bg-rose-500/10 border-rose-500/30 text-rose-300 hover:bg-rose-500/20 font-bold"
-          >
-            <span>🚪 Ganti Peran</span>
-          </button>
+              }}
+              title="Ganti Peran / Logout"
+              className="btn-secondary py-2 px-3 text-xs bg-rose-500/10 border-rose-500/30 text-rose-300 hover:bg-rose-500/20 font-bold"
+            >
+              <span>🚪 Ganti Peran</span>
+            </button>
+          )}
 
           <button 
             onClick={onRefresh}

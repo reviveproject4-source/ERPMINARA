@@ -129,6 +129,12 @@ class SystemStore {
   }
 
   public getCurrentEmployee(): Employee { return this.currentEmployee; }
+
+  public setCurrentEmployeeId(id: string): Employee {
+    const emp = this.employees.find(e => e.id === id) || this.employees[0];
+    this.currentEmployee = emp;
+    return emp;
+  }
   
   public setCurrentEmployeeRole(role: UserRole): Employee {
     const emp = this.employees.find(e => e.role === role) || this.employees[0];

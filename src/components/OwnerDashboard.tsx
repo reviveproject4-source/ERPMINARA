@@ -227,7 +227,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
             </span>
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            Perspektif Eksekutif: Memastikan Alur Data Operasional $\rightarrow$ Omset Sah $\rightarrow$ Radar Coaching Sales Zona Kritis.
+            Dashboard eksekutif untuk memantau kinerja operasional, status onboarding, dan realisasi omset.
           </p>
         </div>
 
@@ -506,8 +506,8 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
           <div className="flex items-center gap-2">
             <UserCheck className="w-5 h-5 text-indigo-400" />
             <div>
-              <h3 className="text-sm font-bold text-white">Data Presensi Sales Field & Verifikasi Keuangan (Gaji & Transport)</h3>
-              <p className="text-xs text-gray-400">Verifikasi pencairan uang makan, uang transport harian, dan insentif presensi sales</p>
+              <h3 className="text-sm font-bold text-white">Laporan Kehadiran Kunjungan Lapangan Tim Sales</h3>
+              <p className="text-xs text-gray-400">Daftar verifikasi presensi harian untuk tim sales rep.</p>
             </div>
           </div>
           <span className="badge-blue text-xs px-2.5 py-0.5 font-bold">
@@ -562,22 +562,22 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
       </div>
 
       {/* RADAR SUPER ADMIN / DEVELOPER: CLIENT PIPELINE ACTIVATION */}
-      <div className="glass-card p-5 border-2 border-indigo-500/40 bg-indigo-500/10 space-y-4">
+      <div className="glass-card p-5 border border-indigo-500/30 bg-indigo-500/5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <Radio className="w-5 h-5 text-indigo-400 animate-pulse" />
+            <Radio className="w-5 h-5 text-indigo-400" />
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <span>🚀 Radar Super Admin / Developer: Activation Form Pipeline</span>
-                <span className="badge-purple text-[10px] px-2 py-0.5 font-mono">1-Click Production</span>
+                <span>Daftar Pengajuan Aktivasi Layanan</span>
+                <span className="badge-purple text-[10px] px-2 py-0.5 font-mono">Activation Gateway</span>
               </h3>
-              <p className="text-xs text-gray-300">
-                Sales Input $\rightarrow$ Demo Otomatis Aktif $\rightarrow$ Klien Bayar $\rightarrow$ Developer 1-Click Aktifkan
+              <p className="text-xs text-gray-400">
+                Calon klien PILIN yang siap diaktifkan ke live production.
               </p>
             </div>
           </div>
           <span className="text-xs font-mono font-bold text-indigo-300 bg-indigo-900/80 px-3 py-1 rounded-lg border border-indigo-500/30">
-            {prospects.length} Form Activasi Client
+            {prospects.length} Form Aktivasi Client
           </span>
         </div>
 
@@ -653,8 +653,8 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5 text-amber-400" />
             <div>
-              <h3 className="text-sm font-bold text-white">Alur Handoff Antar Divisi (Sales $\rightarrow$ CS $\rightarrow$ Finance $\rightarrow$ Owner)</h3>
-              <p className="text-xs text-gray-400">Persetujuan berjenjang tanpa duplikasi penginputan data</p>
+              <h3 className="text-sm font-bold text-white">Status Handoff Kontrak Layanan Klien</h3>
+              <p className="text-xs text-gray-400 font-medium">Alur persetujuan administrasi dan verifikasi keuangan berjenjang.</p>
             </div>
           </div>
           <span className="text-xs font-mono text-gray-400">Total Deals: {deals.length}</span>
