@@ -95,6 +95,7 @@ export function App() {
             deals={deals}
             onOpenProspectModal={handleOpenProspectModal}
             onRefresh={refreshData}
+            onRoleChange={handleRoleChange}
           />
         )}
 
