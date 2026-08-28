@@ -529,6 +529,20 @@ export const SalesDashboard: React.FC<SalesDashboardProps> = ({
                     </div>
                   )}
 
+                  {/* Pre-Demo Audit Status Badge */}
+                  <div className="flex items-center justify-between bg-gray-900/80 p-1.5 rounded-lg border border-white/10 text-[10px]">
+                    <span className="text-gray-300 font-medium">Audit Bisnis:</span>
+                    {prospect.pilin_details?.business_audit?.is_completed ? (
+                      <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+                        🟢 Audit Selesai (Siap Demo)
+                      </span>
+                    ) : (
+                      <span className="text-amber-300 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+                        🟡 Pre-Demo Audit Needed
+                      </span>
+                    )}
+                  </div>
+
                   <div className="flex items-center justify-between bg-indigo-950/60 p-1.5 rounded-lg border border-indigo-500/30 text-[10px]">
                     <span className="text-indigo-300 font-bold flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-amber-400" /> Demo Otomatis Aktif

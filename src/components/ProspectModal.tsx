@@ -61,6 +61,55 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
   const [selectedPilinFeatures, setSelectedPilinFeatures] = useState<string[]>(prospect?.pilin_details?.selected_features || ['sapaan', 'reminder']);
   const [pilinDepositSaldo, setPilinDepositSaldo] = useState<number>(prospect?.pilin_details?.deposit_saldo || 100000);
 
+  // PILIN Pre-Demo Business Audit (4-Part Diagnostic Model)
+  const auditData = prospect?.pilin_details?.business_audit;
+  
+  // Part 1: Profil & Model Bisnis
+  const [auditTahunBerdiri, setAuditTahunBerdiri] = useState<number>(auditData?.tahun_berdiri || 2021);
+  const [auditJumlahCabang, setAuditJumlahCabang] = useState<number>(auditData?.jumlah_cabang || 1);
+  const [auditJumlahKaryawan, setAuditJumlahKaryawan] = useState<number>(auditData?.jumlah_karyawan || 5);
+  const [auditProdukJasaUtama, setAuditProdukJasaUtama] = useState<string>(auditData?.produk_jasa_utama || '');
+  const [auditTargetCustomer, setAuditTargetCustomer] = useState<string>(auditData?.target_customer || '');
+  const [auditModelBisnis, setAuditModelBisnis] = useState<string>(auditData?.model_bisnis || 'Retail Direct B2C');
+
+  // Part 2: Model Keuangan & Revenue
+  const [auditHargaJualRange, setAuditHargaJualRange] = useState<string>(auditData?.harga_jual_range || 'Rp 50.000 - Rp 250.000');
+  const [auditCustomerUtama, setAuditCustomerUtama] = useState<string>(auditData?.customer_utama || 'Pelanggan Lokal & Walk-in');
+  const [auditChannelPenjualan, setAuditChannelPenjualan] = useState<string>(Array.isArray(auditData?.channel_penjualan) ? auditData.channel_penjualan.join(', ') : auditData?.channel_penjualan || 'Toko Fisik (Offline), WhatsApp');
+  const [auditSumberPendapatan, setAuditSumberPendapatan] = useState<string>(auditData?.sumber_pendapatan || 'Penjualan Produk Retail Direct');
+  const [auditFrekuensiTransaksi, setAuditFrekuensiTransaksi] = useState<string>(auditData?.frekuensi_transaksi || 'Harian (30-50 transaksi/hari)');
+  const [auditATV, setAuditATV] = useState<number>(auditData?.average_transaction_value || 150000);
+  const [auditRepeatOrderRate, setAuditRepeatOrderRate] = useState<string>(auditData?.repeat_order_rate || '30-40% per bulan');
+  const [auditBiayaUtama, setAuditBiayaUtama] = useState<string>(Array.isArray(auditData?.biaya_utama) ? auditData.biaya_utama.join(', ') : auditData?.biaya_utama || 'HPP Produk, Gaji Karyawan, Sewa Tempat');
+  const [auditMarginPct, setAuditMarginPct] = useState<number>(auditData?.estimated_margin_pct || 25);
+
+  // Part 3: Operasional & Funnel
+  const [auditProsesCustomer, setAuditProsesCustomer] = useState<string>(auditData?.proses_mendapatkan_customer || 'Brosur, Medsos, Referal Mulut ke Mulut');
+  const [auditProsesOrder, setAuditProsesOrder] = useState<string>(auditData?.proses_order || 'Kasir Manual / Catat Nota Kertas');
+  const [auditProsesProduksi, setAuditProsesProduksi] = useState<string>(auditData?.proses_produksi || 'Stok Gudang & Assembly Langsung');
+  const [auditProsesQC, setAuditProsesQC] = useState<string>(auditData?.proses_quality_control || 'Cek Fisik Sebelum Serah Terima');
+  const [auditProsesPembayaran, setAuditProsesPembayaran] = useState<string>(auditData?.proses_pembayaran || 'Cash, QRIS, Transfer Bank');
+  const [auditProsesDelivery, setAuditProsesDelivery] = useState<string>(auditData?.proses_delivery_pengambilan || 'Ambil di Tempat / Kurir Lokal');
+  const [auditProsesKomplain, setAuditProsesKomplain] = useState<string>(auditData?.proses_komplain || 'Chat WA Admin / Tatap Muka');
+  const [auditProsesRepeatOrder, setAuditProsesRepeatOrder] = useState<string>(auditData?.proses_repeat_order || 'Tunggu Klien Datang Lagi (Belum Terjadwal)');
+
+  // Part 4: Problem & Bottleneck Diagnosis
+  const [auditMasalahTerbesar, setAuditMasalahTerbesar] = useState<string>(auditData?.masalah_terbesar || 'Pencatatan kas selisih & stok barang bocor');
+  const [auditMasalahSeringTerjadi, setAuditMasalahSeringTerjadi] = useState<string>(auditData?.masalah_sering_terjadi || 'Lupa follow-up repeat order customer');
+  const [auditProsesMasihManual, setAuditProsesMasihManual] = useState<string>(Array.isArray(auditData?.proses_masih_manual) ? auditData.proses_masih_manual.join(', ') : auditData?.proses_masih_manual || 'Kasir Nota Kertas, Rekap Stok Gudang, Penagihan WA');
+  const [auditPekerjaanHanyaOwner, setAuditPekerjaanHanyaOwner] = useState<string>(auditData?.pekerjaan_hanya_owner || 'Cek Saldo Kas & Pembelian Stok Utama');
+  const [auditDataTidakTersedia, setAuditDataTidakTersedia] = useState<string>(auditData?.data_tidak_tersedia || 'Database & Riwayat Belanja Customer Setia');
+  const [auditKesalahanSeringTerjadi, setAuditKesalahanSeringTerjadi] = useState<string>(auditData?.kesalahan_sering_terjadi || 'Salah Hitung Kembalian & Human Error Kertas');
+  const [auditKomplainCustomerRutin, setAuditKomplainCustomerRutin] = useState<string>(auditData?.komplain_customer_rutin || 'Keterlambatan Konfirmasi WA & Stok Kosong');
+  const [auditKebocoranUang, setAuditKebocoranUang] = useState<string>(auditData?.kebocoran_uang || 'Stok barang hilang & selisih laci kasir');
+  const [auditKeterlambatanPekerjaan, setAuditKeterlambatanPekerjaan] = useState<string>(auditData?.keterlambatan_pekerjaan || 'Rekap Keuangan Bulanan Selalu Terlambat');
+  const [auditTargetTidakTercapai, setAuditTargetTidakTercapai] = useState<string>(auditData?.target_tidak_tercapai || 'Omset Penjualan Bulanan Belum Stabil');
+  const [auditSopBelumAda, setAuditSopBelumAda] = useState<string>(auditData?.sop_belum_ada || 'SOP Pelayanan Pelanggan & Follow-up H+7');
+  const [auditSistemAdaTidakBerjalan, setAuditSistemAdaTidakBerjalan] = useState<string>(auditData?.sistem_ada_tidak_berjalan || 'Excel Pembukuan Lama Tidak Diupdate');
+
+  const [isAuditCompleted, setIsAuditCompleted] = useState<boolean>(auditData?.is_completed || false);
+  const [auditActiveSubTab, setAuditActiveSubTab] = useState<'part1' | 'part2' | 'part3' | 'part4'>('part1');
+
   // CeritaAnanda (PAUD & TK) Specific Fields
   const [caNamaYayasan, setCaNamaYayasan] = useState(prospect?.ceritaananda_details?.nama_yayasan || '');
   const [caNamaTK, setCaNamaTK] = useState(prospect?.ceritaananda_details?.nama_tk || prospect?.nama_lembaga || '');
@@ -79,7 +128,7 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
   const [nilaiPeluang] = useState(prospect?.nilai_peluang || 0);
 
   // SOP Tabs
-  const [activeTab, setActiveTab] = useState<'info' | 'discovery' | 'demo' | 'proposal' | 'closing'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'audit' | 'discovery' | 'demo' | 'proposal' | 'closing'>('info');
 
   // SOP State
   const [jumlahSantri, setJumlahSantri] = useState(100);
@@ -168,6 +217,54 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
       is_verified: true
     };
 
+    const auditPayload = {
+      nama_bisnis: pilinNamaToko || mainDisplayName,
+      jenis_industri: pilinJenisUsaha,
+      tahun_berdiri: auditTahunBerdiri,
+      lokasi: pilinAlamat || mainWilayah,
+      jumlah_cabang: auditJumlahCabang,
+      jumlah_karyawan: auditJumlahKaryawan,
+      pemilik_founder: pilinOwner || mainPic,
+      produk_jasa_utama: auditProdukJasaUtama,
+      target_customer: auditTargetCustomer,
+      model_bisnis: auditModelBisnis,
+
+      harga_jual_range: auditHargaJualRange,
+      customer_utama: auditCustomerUtama,
+      channel_penjualan: typeof auditChannelPenjualan === 'string' ? auditChannelPenjualan.split(',').map(s => s.trim()) : auditChannelPenjualan,
+      sumber_pendapatan: auditSumberPendapatan,
+      frekuensi_transaksi: auditFrekuensiTransaksi,
+      average_transaction_value: auditATV,
+      repeat_order_rate: auditRepeatOrderRate,
+      biaya_utama: typeof auditBiayaUtama === 'string' ? auditBiayaUtama.split(',').map(s => s.trim()) : auditBiayaUtama,
+      estimated_margin_pct: auditMarginPct,
+
+      proses_mendapatkan_customer: auditProsesCustomer,
+      proses_order: auditProsesOrder,
+      proses_produksi: auditProsesProduksi,
+      proses_quality_control: auditProsesQC,
+      proses_pembayaran: auditProsesPembayaran,
+      proses_delivery_pengambilan: auditProsesDelivery,
+      proses_komplain: auditProsesKomplain,
+      proses_repeat_order: auditProsesRepeatOrder,
+
+      masalah_terbesar: auditMasalahTerbesar,
+      masalah_sering_terjadi: auditMasalahSeringTerjadi,
+      proses_masih_manual: typeof auditProsesMasihManual === 'string' ? auditProsesMasihManual.split(',').map(s => s.trim()) : auditProsesMasihManual,
+      pekerjaan_hanya_owner: auditPekerjaanHanyaOwner,
+      data_tidak_tersedia: auditDataTidakTersedia,
+      kesalahan_sering_terjadi: auditKesalahanSeringTerjadi,
+      komplain_customer_rutin: auditKomplainCustomerRutin,
+      kebocoran_uang: auditKebocoranUang,
+      keterlambatan_pekerjaan: auditKeterlambatanPekerjaan,
+      target_tidak_tercapai: auditTargetTidakTercapai,
+      sop_belum_ada: auditSopBelumAda,
+      sistem_ada_tidak_berjalan: auditSistemAdaTidakBerjalan,
+
+      is_completed: isAuditCompleted || (auditProdukJasaUtama.length > 0 && auditMasalahTerbesar.length > 0),
+      completed_at: new Date().toISOString()
+    };
+
     const pilinData = {
       nama_toko: pilinNamaToko,
       alamat: pilinAlamat,
@@ -180,7 +277,8 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
       selected_features: selectedPilinFeatures,
       deposit_saldo: pilinDepositSaldo,
       keterangan_kunjungan: pilinKeterangan,
-      app_pembayaran_saat_ini: pilinAppPembayaran
+      app_pembayaran_saat_ini: pilinAppPembayaran,
+      business_audit: auditPayload
     };
 
     const caData = {
@@ -323,6 +421,78 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
     onClose();
   };
 
+  const handleSaveAudit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prospect) return;
+
+    const auditPayload = {
+      nama_bisnis: pilinNamaToko || prospect.nama_lembaga,
+      jenis_industri: pilinJenisUsaha,
+      tahun_berdiri: auditTahunBerdiri,
+      lokasi: pilinAlamat || prospect.wilayah,
+      jumlah_cabang: auditJumlahCabang,
+      jumlah_karyawan: auditJumlahKaryawan,
+      pemilik_founder: pilinOwner || prospect.pic,
+      produk_jasa_utama: auditProdukJasaUtama,
+      target_customer: auditTargetCustomer,
+      model_bisnis: auditModelBisnis,
+
+      harga_jual_range: auditHargaJualRange,
+      customer_utama: auditCustomerUtama,
+      channel_penjualan: typeof auditChannelPenjualan === 'string' ? auditChannelPenjualan.split(',').map(s => s.trim()) : auditChannelPenjualan,
+      sumber_pendapatan: auditSumberPendapatan,
+      frekuensi_transaksi: auditFrekuensiTransaksi,
+      average_transaction_value: auditATV,
+      repeat_order_rate: auditRepeatOrderRate,
+      biaya_utama: typeof auditBiayaUtama === 'string' ? auditBiayaUtama.split(',').map(s => s.trim()) : auditBiayaUtama,
+      estimated_margin_pct: auditMarginPct,
+
+      proses_mendapatkan_customer: auditProsesCustomer,
+      proses_order: auditProsesOrder,
+      proses_produksi: auditProsesProduksi,
+      proses_quality_control: auditProsesQC,
+      proses_pembayaran: auditProsesPembayaran,
+      proses_delivery_pengambilan: auditProsesDelivery,
+      proses_komplain: auditProsesKomplain,
+      proses_repeat_order: auditProsesRepeatOrder,
+
+      masalah_terbesar: auditMasalahTerbesar,
+      masalah_sering_terjadi: auditMasalahSeringTerjadi,
+      proses_masih_manual: typeof auditProsesMasihManual === 'string' ? auditProsesMasihManual.split(',').map(s => s.trim()) : auditProsesMasihManual,
+      pekerjaan_hanya_owner: auditPekerjaanHanyaOwner,
+      data_tidak_tersedia: auditDataTidakTersedia,
+      kesalahan_sering_terjadi: auditKesalahanSeringTerjadi,
+      komplain_customer_rutin: auditKomplainCustomerRutin,
+      kebocoran_uang: auditKebocoranUang,
+      keterlambatan_pekerjaan: auditKeterlambatanPekerjaan,
+      target_tidak_tercapai: auditTargetTidakTercapai,
+      sop_belum_ada: auditSopBelumAda,
+      sistem_ada_tidak_berjalan: auditSistemAdaTidakBerjalan,
+
+      is_completed: true,
+      completed_at: new Date().toISOString()
+    };
+
+    const currentPilin = prospect.pilin_details || {
+      nama_toko: prospect.nama_lembaga,
+      alamat: prospect.wilayah,
+      owner: prospect.pic,
+      no_admin: prospect.no_hp,
+      jenis_usaha: 'Retail'
+    };
+
+    systemStore.updateProspect(prospect.id, {
+      pilin_details: {
+        ...currentPilin,
+        business_audit: auditPayload
+      }
+    });
+
+    setIsAuditCompleted(true);
+    onSaved();
+    setActiveTab('demo');
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
       <div className="glass-card w-full max-w-2xl bg-[#0d1322] border border-white/15 rounded-2xl p-5 md:p-6 space-y-4 text-white">
@@ -346,8 +516,16 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
         {isEditing && (
           <div className="flex items-center gap-1.5 border-b border-white/10 pb-2 overflow-x-auto text-xs font-semibold">
             <button onClick={() => setActiveTab('info')} className={`px-3 py-1.5 rounded-lg ${activeTab === 'info' ? 'bg-emerald-500 text-white' : 'text-gray-400 hover:text-white'}`}>Info Utama</button>
+            <button onClick={() => setActiveTab('audit')} className={`px-3 py-1.5 rounded-lg border ${activeTab === 'audit' ? 'bg-indigo-600 text-white border-indigo-400 shadow-md font-bold' : 'bg-indigo-950/40 text-indigo-300 border-indigo-500/30 hover:text-white'}`}>
+              🔍 Audit Bisnis Klien (Pre-Demo)
+            </button>
             <button onClick={() => setActiveTab('discovery')} className={`px-3 py-1.5 rounded-lg ${activeTab === 'discovery' ? 'bg-teal-500 text-white' : 'text-gray-400 hover:text-white'}`}>Discovery Meeting</button>
-            <button onClick={() => setActiveTab('demo')} className={`px-3 py-1.5 rounded-lg ${activeTab === 'demo' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}>Demo SOP</button>
+            <button onClick={() => setActiveTab('demo')} className={`px-3 py-1.5 rounded-lg flex items-center gap-1 ${activeTab === 'demo' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}>
+              <span>Demo SOP</span>
+              {!(prospect?.pilin_details?.business_audit?.is_completed || isAuditCompleted) && (
+                <span className="bg-rose-500 text-white text-[9px] px-1 rounded font-mono font-bold">🔒 Locked</span>
+              )}
+            </button>
             <button onClick={() => setActiveTab('proposal')} className={`px-3 py-1.5 rounded-lg ${activeTab === 'proposal' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-white'}`}>Proposal SLA</button>
             <button onClick={() => setActiveTab('closing')} className={`px-3 py-1.5 rounded-lg ${activeTab === 'closing' ? 'bg-amber-500 text-white' : 'text-gray-400 hover:text-white'}`}>Closing Deal</button>
           </div>
@@ -1037,18 +1215,345 @@ export const ProspectModal: React.FC<ProspectModalProps> = ({
           </form>
         )}
 
-        {activeTab === 'demo' && prospect && (
-          <form onSubmit={handleSaveDemo} className="space-y-3 text-xs">
-            <p className="text-gray-400">SOP Demo Aplikasi Minara ERP / BOS.</p>
-            <div className="bg-gray-900/80 p-3 rounded-xl border border-white/10 space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={sopSapaan} onChange={(e) => setSopSapaan(e.target.checked)} className="accent-purple-500" /><span>Sapaan & Pembukaan Sesuai SOP</span></label>
-              <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={sopPresentasi} onChange={(e) => setSopPresentasi(e.target.checked)} className="accent-purple-500" /><span>Presentasi Fitur Utama (PILIN / CeritaAnanda / Kabarsantri)</span></label>
-              <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={sopQA} onChange={(e) => setSopQA(e.target.checked)} className="accent-purple-500" /><span>Sesi Tanya Jawab Selesai</span></label>
+        {/* PRE-DEMO BUSINESS AUDIT TAB FORM */}
+        {activeTab === 'audit' && prospect && (
+          <form onSubmit={handleSaveAudit} className="space-y-4 text-xs">
+            <div className="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/30 flex items-center justify-between">
+              <div>
+                <h4 className="text-indigo-300 font-bold flex items-center gap-1.5 text-xs">
+                  <ShieldCheck className="w-4 h-4 text-amber-400" />
+                  Formulir Pre-Demo Audit & Diagnosis Bisnis Klien (PILIN)
+                </h4>
+                <p className="text-[11px] text-gray-400">
+                  Data wajib diisi Sales sebelum menyelenggarakan Demo SOP untuk memahami bisnis & mendiagnosis titik bocor.
+                </p>
+              </div>
+              <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold font-mono ${
+                isAuditCompleted ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+              }`}>
+                {isAuditCompleted ? '✓ Audit Selesai' : '⚠️ Wajib Diisi'}
+              </span>
             </div>
-            <div><label className="block text-gray-300 mb-1">Jumlah Peserta Hadir Demo *</label><input type="number" value={demoAttendance} onChange={(e) => setDemoAttendance(Number(e.target.value))} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" /></div>
-            <div><label className="block text-gray-300 mb-1">Feedback Saat Demo</label><textarea rows={2} value={feedbackPesantren} onChange={(e) => setFeedbackPesantren(e.target.value)} placeholder="Respons..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" /></div>
-            <div className="flex justify-end gap-3 pt-3 border-t border-white/10"><button type="button" onClick={onClose} className="btn-secondary text-xs">Batal</button><button type="submit" className="btn-primary text-xs bg-purple-600 hover:bg-purple-500">Simpan Hasil Demo SOP</button></div>
+
+            {/* Sub-tabs Navigation */}
+            <div className="flex items-center gap-1 bg-gray-900/90 p-1 rounded-xl border border-white/10 text-[11px]">
+              <button
+                type="button"
+                onClick={() => setAuditActiveSubTab('part1')}
+                className={`flex-1 py-1.5 px-2 rounded-lg font-bold transition-all ${
+                  auditActiveSubTab === 'part1' ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                🏢 1. Profil Bisnis
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuditActiveSubTab('part2')}
+                className={`flex-1 py-1.5 px-2 rounded-lg font-bold transition-all ${
+                  auditActiveSubTab === 'part2' ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                💵 2. Revenue & Margin
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuditActiveSubTab('part3')}
+                className={`flex-1 py-1.5 px-2 rounded-lg font-bold transition-all ${
+                  auditActiveSubTab === 'part3' ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                ⚙️ 3. Operasional Funnel
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuditActiveSubTab('part4')}
+                className={`flex-1 py-1.5 px-2 rounded-lg font-bold transition-all ${
+                  auditActiveSubTab === 'part4' ? 'bg-rose-600 text-white shadow' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                ⚠️ 4. Problem & Bocor
+              </button>
+            </div>
+
+            {/* PART 1: PROFIL & MODEL BISNIS */}
+            {auditActiveSubTab === 'part1' && (
+              <div className="glass-card p-3.5 border border-white/10 space-y-3 bg-gray-900/40">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Nama Bisnis / Toko *</label>
+                    <input type="text" required value={pilinNamaToko} onChange={(e) => setPilinNamaToko(e.target.value)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-bold" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Jenis / Industri Bisnis *</label>
+                    <select value={pilinJenisUsaha} onChange={(e) => setPilinJenisUsaha(e.target.value as 'Retail' | 'Jasa')} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white">
+                      <option value="Retail">Retail (Minimarket, Fashion, Distributor)</option>
+                      <option value="Jasa">Jasa (Salon, Bengkel, Klinik, Service)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Tahun Berdiri *</label>
+                    <input type="number" value={auditTahunBerdiri} onChange={(e) => setAuditTahunBerdiri(Number(e.target.value))} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Jumlah Cabang *</label>
+                    <input type="number" value={auditJumlahCabang} onChange={(e) => setAuditJumlahCabang(Number(e.target.value))} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Jumlah Karyawan *</label>
+                    <input type="number" value={auditJumlahKaryawan} onChange={(e) => setAuditJumlahKaryawan(Number(e.target.value))} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Pemilik / Founder Utama *</label>
+                    <input type="text" required value={pilinOwner} onChange={(e) => setPilinOwner(e.target.value)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Lokasi Bisnis Lengkap *</label>
+                    <input type="text" required value={pilinAlamat} onChange={(e) => setPilinAlamat(e.target.value)} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Produk / Jasa Utama *</label>
+                    <input type="text" required value={auditProdukJasaUtama} onChange={(e) => setAuditProdukJasaUtama(e.target.value)} placeholder="Misal: Sembako / Paket Hair Treatment" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Target Customer Utama *</label>
+                    <input type="text" required value={auditTargetCustomer} onChange={(e) => setAuditTargetCustomer(e.target.value)} placeholder="Misal: Ibu Rumah Tangga / Mahasiswa" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Model Bisnis *</label>
+                    <input type="text" required value={auditModelBisnis} onChange={(e) => setAuditModelBisnis(e.target.value)} placeholder="Retail B2C / Grosir / Langganan" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PART 2: MODEL KEUANGAN & REVENUE */}
+            {auditActiveSubTab === 'part2' && (
+              <div className="glass-card p-3.5 border border-white/10 space-y-3 bg-gray-900/40">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Kisaran Harga Jual Produk/Jasa *</label>
+                    <input type="text" value={auditHargaJualRange} onChange={(e) => setAuditHargaJualRange(e.target.value)} placeholder="Rp 10.000 - Rp 500.000" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Customer Utama Segmen *</label>
+                    <input type="text" value={auditCustomerUtama} onChange={(e) => setAuditCustomerUtama(e.target.value)} placeholder="Pelanggan Setia Lokal" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Channel Penjualan (Pemasaran) *</label>
+                    <input type="text" value={auditChannelPenjualan} onChange={(e) => setAuditChannelPenjualan(e.target.value)} placeholder="Toko Fisik, WA, Tokopedia, Instagram" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Biaya Utama Operasional *</label>
+                    <input type="text" value={auditBiayaUtama} onChange={(e) => setAuditBiayaUtama(e.target.value)} placeholder="HPP Produk, Gaji Karyawan, Sewa Tempat" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Sumber Pendapatan Utama *</label>
+                    <input type="text" value={auditSumberPendapatan} onChange={(e) => setAuditSumberPendapatan(e.target.value)} placeholder="Penjualan Produk Direct Kasir" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Frekuensi Transaksi *</label>
+                    <input type="text" value={auditFrekuensiTransaksi} onChange={(e) => setAuditFrekuensiTransaksi(e.target.value)} placeholder="Harian / 20-50 Transaksi Per Hari" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Average Transaction Value (ATV) *</label>
+                    <input type="number" value={auditATV} onChange={(e) => setAuditATV(Number(e.target.value))} placeholder="150000" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white font-mono font-bold" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Repeat Order Rate *</label>
+                    <input type="text" value={auditRepeatOrderRate} onChange={(e) => setAuditRepeatOrderRate(e.target.value)} placeholder="30-40% per bulan" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Estimasi Margin Keuntungan (%) *</label>
+                    <input type="number" value={auditMarginPct} onChange={(e) => setAuditMarginPct(Number(e.target.value))} placeholder="25" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-emerald-400 font-mono font-bold" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PART 3: OPERASIONAL & FUNNEL */}
+            {auditActiveSubTab === 'part3' && (
+              <div className="glass-card p-3.5 border border-white/10 space-y-3 bg-gray-900/40">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses Mendapatkan Customer *</label>
+                    <textarea rows={1} value={auditProsesCustomer} onChange={(e) => setAuditProsesCustomer(e.target.value)} placeholder="Cara prospeksi / promosi..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses Order / Penjualan *</label>
+                    <textarea rows={1} value={auditProsesOrder} onChange={(e) => setAuditProsesOrder(e.target.value)} placeholder="Alur kasir / pemesanan..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses Produksi / Assembling *</label>
+                    <textarea rows={1} value={auditProsesProduksi} onChange={(e) => setAuditProsesProduksi(e.target.value)} placeholder="Alur penyiapan barang..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses Quality Control (QC) *</label>
+                    <textarea rows={1} value={auditProsesQC} onChange={(e) => setAuditProsesQC(e.target.value)} placeholder="Cek fisik sebelum kirim..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses Pembayaran *</label>
+                    <textarea rows={1} value={auditProsesPembayaran} onChange={(e) => setAuditProsesPembayaran(e.target.value)} placeholder="Cash, QRIS, EDC..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses Delivery / Pengambilan *</label>
+                    <textarea rows={1} value={auditProsesDelivery} onChange={(e) => setAuditProsesDelivery(e.target.value)} placeholder="Ambil toko / kurir..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses Komplain *</label>
+                    <textarea rows={1} value={auditProsesKomplain} onChange={(e) => setAuditProsesKomplain(e.target.value)} placeholder="Handling komplain..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses Repeat Order *</label>
+                    <textarea rows={1} value={auditProsesRepeatOrder} onChange={(e) => setAuditProsesRepeatOrder(e.target.value)} placeholder="Jadwal follow up..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PART 4: PROBLEM & BOTTLENECK DIAGNOSIS */}
+            {auditActiveSubTab === 'part4' && (
+              <div className="glass-card p-3.5 border border-rose-500/30 bg-rose-500/5 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-rose-300 font-bold mb-1">Masalah Terbesar Bisnis *</label>
+                    <textarea rows={2} required value={auditMasalahTerbesar} onChange={(e) => setAuditMasalahTerbesar(e.target.value)} placeholder="Pencatatan kas selisih & stok bocor..." className="w-full bg-gray-900 border border-rose-500/30 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-amber-300 font-bold mb-1">Masalah yang Sering Terjadi *</label>
+                    <textarea rows={2} required value={auditMasalahSeringTerjadi} onChange={(e) => setAuditMasalahSeringTerjadi(e.target.value)} placeholder="Lupa follow up customer..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Proses yang Masih Manual *</label>
+                    <input type="text" value={auditProsesMasihManual} onChange={(e) => setAuditProsesMasihManual(e.target.value)} placeholder="Kasir Nota Kertas, Rekap Stok, WA" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Pekerjaan yang Hanya Owner Bisa Lakukan *</label>
+                    <input type="text" value={auditPekerjaanHanyaOwner} onChange={(e) => setAuditPekerjaanHanyaOwner(e.target.value)} placeholder="Misal: Cek fisik laci kasir & order stok utama" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Kesalahan yang Sering Terjadi *</label>
+                    <input type="text" value={auditKesalahanSeringTerjadi} onChange={(e) => setAuditKesalahanSeringTerjadi(e.target.value)} placeholder="Salah hitung kembalian & human error" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Komplain Customer Rutin *</label>
+                    <input type="text" value={auditKomplainCustomerRutin} onChange={(e) => setAuditKomplainCustomerRutin(e.target.value)} placeholder="Konfirmasi WA lambat & stok kosong" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Kebocoran Uang / Barang *</label>
+                    <input type="text" value={auditKebocoranUang} onChange={(e) => setAuditKebocoranUang(e.target.value)} placeholder="Misal: Selisih uang kasir & stok hilang" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Keterlambatan Pekerjaan *</label>
+                    <input type="text" value={auditKeterlambatanPekerjaan} onChange={(e) => setAuditKeterlambatanPekerjaan(e.target.value)} placeholder="Rekap bulanan terlambat" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-gray-300 mb-1">Data Tidak Tersedia *</label>
+                    <input type="text" value={auditDataTidakTersedia} onChange={(e) => setAuditDataTidakTersedia(e.target.value)} placeholder="Histori belanja" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Target Tidak Tercapai *</label>
+                    <input type="text" value={auditTargetTidakTercapai} onChange={(e) => setAuditTargetTidakTercapai(e.target.value)} placeholder="Omset durasi belum stabil" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">SOP / Sistem Belum Berjalan *</label>
+                    <input type="text" value={auditSistemAdaTidakBerjalan} onChange={(e) => setAuditSistemAdaTidakBerjalan(e.target.value)} placeholder="Excel lama tidak diupdate" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 mb-1">SOP yang Belum Ada *</label>
+                  <input type="text" value={auditSopBelumAda} onChange={(e) => setAuditSopBelumAda(e.target.value)} placeholder="SOP Pelayanan & Follow up H+7" className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center pt-3 border-t border-white/10">
+              <span className="text-[11px] text-gray-400">
+                Lengkapi 4 bagian form audit ini untuk melepaskan kunci Demo SOP.
+              </span>
+              <div className="flex gap-3">
+                <button type="button" onClick={onClose} className="btn-secondary text-xs">Batal</button>
+                <button type="submit" className="btn-primary text-xs bg-indigo-600 hover:bg-indigo-500 font-bold">
+                  <CheckCircle2 className="w-4 h-4" /> Simpan Audit & Buka Demo SOP
+                </button>
+              </div>
+            </div>
           </form>
+        )}
+
+        {/* DEMO SOP TAB (WITH GATING RULE) */}
+        {activeTab === 'demo' && prospect && (
+          !(prospect?.pilin_details?.business_audit?.is_completed || isAuditCompleted) ? (
+            <div className="glass-card p-5 border-2 border-rose-500/50 bg-rose-500/10 text-center space-y-4 rounded-2xl my-2">
+              <div className="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/40">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-rose-300">⚠️ Pre-Demo Audit Belum Lengkap</h4>
+                <p className="text-xs text-gray-300 max-w-md mx-auto">
+                  SOP MINARA mengharuskan Sales mengisi <strong>Formulir Diagnosis & Audit Profil Bisnis Klien</strong> terlebih dahulu sebelum menyelenggarakan Demo SOP.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('audit')}
+                className="btn-primary py-2 px-5 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold mx-auto flex items-center gap-2"
+              >
+                <span>📝 Isi Form Audit Bisnis Klien Sekarang</span>
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSaveDemo} className="space-y-3 text-xs">
+              <p className="text-gray-400">SOP Demo Aplikasi Minara ERP / BOS.</p>
+              <div className="bg-gray-900/80 p-3 rounded-xl border border-white/10 space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={sopSapaan} onChange={(e) => setSopSapaan(e.target.checked)} className="accent-purple-500" /><span>Sapaan & Pembukaan Sesuai SOP</span></label>
+                <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={sopPresentasi} onChange={(e) => setSopPresentasi(e.target.checked)} className="accent-purple-500" /><span>Presentasi Fitur Utama (PILIN / CeritaAnanda / Kabarsantri)</span></label>
+                <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={sopQA} onChange={(e) => setSopQA(e.target.checked)} className="accent-purple-500" /><span>Sesi Tanya Jawab Selesai</span></label>
+              </div>
+              <div><label className="block text-gray-300 mb-1">Jumlah Peserta Hadir Demo *</label><input type="number" value={demoAttendance} onChange={(e) => setDemoAttendance(Number(e.target.value))} className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" /></div>
+              <div><label className="block text-gray-300 mb-1">Feedback Saat Demo</label><textarea rows={2} value={feedbackPesantren} onChange={(e) => setFeedbackPesantren(e.target.value)} placeholder="Respons..." className="w-full bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-white" /></div>
+              <div className="flex justify-end gap-3 pt-3 border-t border-white/10"><button type="button" onClick={onClose} className="btn-secondary text-xs">Batal</button><button type="submit" className="btn-primary text-xs bg-purple-600 hover:bg-purple-500">Simpan Hasil Demo SOP</button></div>
+            </form>
+          )
         )}
 
         {activeTab === 'proposal' && prospect && (

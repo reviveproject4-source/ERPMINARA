@@ -173,6 +173,59 @@ export interface AttendanceRecord {
   created_at: string;
 }
 
+// PILIN Mandatory Pre-Demo Client Business Audit & Diagnostic Form (4-Part Model)
+export interface PilinBusinessAudit {
+  // Part 1: Profil & Model Bisnis (Data Memahami Bisnis)
+  nama_bisnis: string;
+  jenis_industri: string;
+  tahun_berdiri: number;
+  lokasi: string;
+  jumlah_cabang: number;
+  jumlah_karyawan: number;
+  pemilik_founder: string;
+  produk_jasa_utama: string;
+  target_customer: string;
+  model_bisnis: string;
+
+  // Part 2: Model Keuangan & Revenue (Cara Bisnis Menghasilkan Uang)
+  harga_jual_range: string;
+  customer_utama: string;
+  channel_penjualan: string[];
+  sumber_pendapatan: string;
+  frekuensi_transaksi: string;
+  average_transaction_value: number;
+  repeat_order_rate: string;
+  biaya_utama: string[];
+  estimated_margin_pct: number;
+
+  // Part 3: Operasional & Funnel ("Bisnis Berjalan Bagaimana?")
+  proses_mendapatkan_customer: string;
+  proses_order: string;
+  proses_produksi: string;
+  proses_quality_control: string;
+  proses_pembayaran: string;
+  proses_delivery_pengambilan: string;
+  proses_komplain: string;
+  proses_repeat_order: string;
+
+  // Part 4: Problem & Bottleneck Diagnosis ("Masalah & Titik Bocor Bisnis")
+  masalah_terbesar: string;
+  masalah_sering_terjadi: string;
+  proses_masih_manual: string[];
+  pekerjaan_hanya_owner: string;
+  data_tidak_tersedia: string;
+  kesalahan_sering_terjadi: string;
+  komplain_customer_rutin: string;
+  kebocoran_uang: string;
+  keterlambatan_pekerjaan: string;
+  target_tidak_tercapai: string;
+  sop_belum_ada: string;
+  sistem_ada_tidak_berjalan: string;
+
+  is_completed: boolean;
+  completed_at?: string;
+}
+
 // Specific Details for PILIN (BOS UMKM Retail & Jasa)
 export interface PilinDetails {
   nama_toko: string;
@@ -189,6 +242,7 @@ export interface PilinDetails {
   is_expansion_sale?: boolean;           // True if feature expansion by existing customer
   keterangan_kunjungan?: string;
   app_pembayaran_saat_ini?: string;
+  business_audit?: PilinBusinessAudit;   // Mandatory Pre-Demo Audit Data
 }
 
 // Specific Details for CeritaAnanda
