@@ -13,8 +13,8 @@ import { SecurityTestModal } from './components/SecurityTestModal';
 import { SuperAdminDashboard } from './components/SuperAdminDashboard';
 
 export function App() {
-  const [currentRole, setCurrentRole] = useState<UserRole>('sales');
-  const [activeTab, setActiveTab] = useState<'sales' | 'owner' | 'cs' | 'super_admin'>('sales');
+  const [currentRole, setCurrentRole] = useState<UserRole>('founder');
+  const [activeTab, setActiveTab] = useState<'sales' | 'owner' | 'cs' | 'super_admin'>('owner');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDemoMode, setIsDemoMode] = useState(true);
 
@@ -28,7 +28,7 @@ export function App() {
 
   // State Data
   const [employees, setEmployees] = useState(() => systemStore.getEmployees());
-  const [currentEmployee, setCurrentEmployee] = useState(() => systemStore.getCurrentEmployee());
+  const [currentEmployee, setCurrentEmployee] = useState(() => systemStore.setCurrentEmployeeRole('founder'));
 
   const [prospects, setProspects] = useState<Prospect[]>(() => systemStore.getProspects(undefined, currentRole));
   const [proposals, setProposals] = useState(() => systemStore.getProposals());
